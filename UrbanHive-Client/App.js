@@ -1,17 +1,45 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Image } from "react-native";
-import UrbanHiveLogo from "./assets/UrbanHive_Logo.jpg"; // Make sure the path is correct
+import { StyleSheet, Text, View, Image, Button } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import UrbanHiveLogo from "./assets/UrbanHive_Logo.jpg";
 
-export default function App() {
+// Screen components
+function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image style={styles.logoImage} source={UrbanHiveLogo} />
       <View style={styles.centeredContent}>
         <Text style={styles.labelText}>Welcome to UrbanHive!</Text>
+        <Button
+          title="Go to Details"
+          onPress={() => navigation.navigate("Details")}
+        />
       </View>
       <StatusBar style="auto" />
     </View>
+  );
+}
+
+function DetailsScreen() {
+  return (
+    <View style={styles.container}>
+      <Text>Details Screen</Text>
+    </View>
+  );
+}
+
+const Stack = createStackNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Details" component={DetailsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -36,8 +64,8 @@ const styles = StyleSheet.create({
     color: "red",
   },
   logoImage: {
-    width: 200, // Set a width for the image
-    height: 200, // Set a height for the image
-    resizeMode: "contain", // Adjust the resizeMode as needed
+    width: 200,
+    height: 200,
+    resizeMode: "contain",
   },
 });
