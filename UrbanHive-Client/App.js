@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, Image, Button } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import UrbanHiveLogo from "./assets/UrbanHive_Logo.jpg";
+import UserForm from "./UserForm";
 
 // Screen components
 function HomeScreen({ navigation }) {
@@ -15,6 +16,11 @@ function HomeScreen({ navigation }) {
         <Button
           title="Go to Details"
           onPress={() => navigation.navigate("Details")}
+        />
+        {/* Add this button to navigate to UserForm */}
+        <Button
+          title="Go to User Form"
+          onPress={() => navigation.navigate("UserForm")}
         />
       </View>
       <StatusBar style="auto" />
@@ -38,6 +44,8 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
+        {/* Add this line to include UserForm in the navigation stack */}
+        <Stack.Screen name="UserForm" component={UserForm} />
       </Stack.Navigator>
     </NavigationContainer>
   );
