@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import config from "./config/config";
+import { getConfig } from "./config/config";
+
+let config;
 
 const UserForm = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +26,10 @@ const UserForm = () => {
     };
 
     try {
-      const response = await fetch(`${config.apiURL}/user/`, requestOptions);
+      server_ip = await getConfig();
+      console.log(config);
+      console.log(`${server_ip}/user/`);
+      const response = await fetch(`${server_ip}/user/`, requestOptions);
       const data = await response.json();
       console.log("Response:", data);
     } catch (error) {
