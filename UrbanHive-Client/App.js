@@ -7,6 +7,7 @@ import CreateAccountScreen from "./screens/CreateAccountScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
+import HomeScreen from "./screens/HomeScreen";
 import useFonts from "./utils/hooks/useFonts";
 
 const Stack = createStackNavigator();
@@ -26,7 +27,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="LoginScreen">
         <Stack.Screen
           name="LoginScreen"
           component={LoginScreen}
@@ -46,6 +47,11 @@ export default function App() {
         <Stack.Screen
           name="ResetPassword"
           component={ResetPasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
