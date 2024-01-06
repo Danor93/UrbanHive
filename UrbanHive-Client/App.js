@@ -6,6 +6,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import CreateAccountScreen from "./screens/CreateAccountScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import useFonts from "./utils/hooks/useFonts";
 
 const Stack = createStackNavigator();
@@ -40,6 +41,11 @@ export default function App() {
         <Stack.Screen
           name="ForgetPassword"
           component={ForgotPasswordScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ResetPassword"
+          component={ResetPasswordScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

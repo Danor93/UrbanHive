@@ -17,7 +17,6 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
   const handlePasswordReset = async () => {
     try {
-      // Replace with your API call
       const server_ip = await getConfig();
       const response = await fetch(`${server_ip}/user/reset-password`, {
         method: "POST",
@@ -26,6 +25,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
         },
         body: JSON.stringify({ userIdentifier: input }),
       });
+
+      navigation.navigate("ResetPassword");
 
       const data = await response.json();
       if (data.success) {
@@ -75,7 +76,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             {/* Sign Up at the bottom */}
             <TouchableOpacity
               style={styles.signupTouchable}
-              onPress={() => navigation.navigate("createAccount")}
+              onPress={() => navigation.navigate("CreateAccount")}
             >
               <Text style={styles.subtitle}>Don't have an account? </Text>
               <Text style={styles.signupText}>Sign Up</Text>

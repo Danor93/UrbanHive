@@ -7,11 +7,12 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import LinearGradient from "react-native-linear-gradient";
 
 const ResetPasswordScreen = ({ route, navigation }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { token } = route.params; // Assuming you're passing the token as a route parameter
+  // const { token } = route.params; // Assuming you're passing the token as a route parameter
 
   const handleResetPassword = async () => {
     if (password !== confirmPassword) {
@@ -34,7 +35,7 @@ const ResetPasswordScreen = ({ route, navigation }) => {
       const data = await response.json();
       if (data.message) {
         Alert.alert("Success", data.message);
-        navigation.navigate("Login"); // Navigate to login screen upon success
+        navigation.navigate("LoginScreen");
       } else {
         Alert.alert("Error", "Could not reset password.");
       }
@@ -48,30 +49,38 @@ const ResetPasswordScreen = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Reset Your Password</Text>
-      <TextInput
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="New Password"
-        secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        placeholder="Confirm New Password"
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
-        <Text style={styles.buttonText}>Reset Password</Text>
-      </TouchableOpacity>
-    </View>
+    <LinearGradient
+      colors={["#0f0f0f", "#05403e", "#03af68"]}
+      style={styles.linearGradient}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Reset Your Password</Text>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          placeholder="New Password"
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder="Confirm New Password"
+          secureTextEntry
+        />
+        <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
+          <Text style={styles.buttonText}>Reset Password</Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  linearGradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     alignItems: "center",
@@ -80,22 +89,24 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
     marginBottom: 20,
+    color: "white",
+    fontFamily: "EncodeSansExpanded-ExtraBold",
   },
   input: {
     height: 40,
-    width: "100%",
+    width: "80%",
     marginVertical: 10,
     borderWidth: 1,
     borderColor: "gray",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 20,
+    backgroundColor: "white",
   },
   button: {
-    backgroundColor: "blue",
+    backgroundColor: "black",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 15,
     marginTop: 20,
   },
   buttonText: {
