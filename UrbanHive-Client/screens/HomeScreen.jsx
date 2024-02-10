@@ -9,19 +9,20 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 
-// Assuming you have a profile image component
-const ProfileImage = () => {
-  return (
-    <Image
-      // source={require("./path-to-your-profile-image.png")}
-      style={styles.profileImage}
-    />
-  );
-};
-
 const HomeScreen = ({ route }) => {
   // const { username } = route.params || "Danor";
+  //TODO: Grab the username from the server and save it with expo secrue store.
   const username = "Danor";
+
+  const ProfileImage = () => {
+    // TODO: grab the image url from the user database on the server
+    return (
+      <Image
+        source={require("../assets/images/Empty_Profile.png")}
+        style={styles.profileImage}
+      />
+    );
+  };
 
   return (
     <LinearGradient
@@ -29,10 +30,20 @@ const HomeScreen = ({ route }) => {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        {/* Absolute positioned header */}
         <Text style={styles.greetingText}>Hello, {username}</Text>
+
+        <View style={styles.headerContainer}>
+          <Text style={styles.homeTitle}>UrbanHive</Text>
+        </View>
+
+        {/* Profile Image on the top right */}
+        <View style={styles.profileImageView}>
+          <ProfileImage />
+        </View>
+
         {/* Menu View */}
         <View style={styles.menu}>
+          {/*TODO: make the functionalty of those buttons. */}
           <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Communities Menu</Text>
           </TouchableOpacity>
@@ -58,18 +69,33 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  headerContainer: {
+    alignItems: "center",
+    marginTop: 16,
+  },
+  homeTitle: {
+    fontSize: 30,
+    color: "white",
+    fontFamily: "EncodeSansExpanded-Bold",
+    marginTop: 50,
+  },
+  profileImageView: {
+    position: "absolute",
+    right: 16,
+    top: 16,
+    zIndex: 10,
+    marginTop: 10,
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+  },
   greetingText: {
     fontSize: 24,
     color: "white",
-    position: "absolute",
-    top: 16, // Adjust top as needed
-    left: 16, // Adjust left as needed
-    zIndex: 10, // Make sure it's above other elements
-  },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    fontFamily: "EncodeSansExpanded-Bold",
+    marginTop: 15,
   },
   menu: {
     flex: 1,
@@ -81,7 +107,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 25,
     marginVertical: 10,
-    width: "90%", // Adjust based on your design
+    width: "90%",
     alignSelf: "center",
   },
   exitButton: {
@@ -89,7 +115,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 25,
     marginVertical: 10,
-    width: "90%", // Adjust based on your design
+    width: "90%",
     alignSelf: "center",
   },
   buttonText: {
