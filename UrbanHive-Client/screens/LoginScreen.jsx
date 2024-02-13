@@ -9,6 +9,7 @@ import {
   Image,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import * as SecureStore from "expo-secure-store";
 // import UserIcon from "../assets/user-icon.png"; // Replace with your user icon image path
 
 const LoginScreen = ({ navigation }) => {
@@ -27,7 +28,6 @@ const LoginScreen = ({ navigation }) => {
       body: JSON.stringify({ id: ID, password: password }),
     };
 
-    // TODO: Replace with your actual API endpoint and include necessary headers
     try {
       const server_ip = await getConfig();
       console.log(server_ip);
@@ -41,6 +41,8 @@ const LoginScreen = ({ navigation }) => {
       if (response.ok) {
         // Handle the successful login here
         Alert.alert("Success", "Logged in successfully");
+
+        await SecureStore.setItemAsync("user_id", ID);
       } else {
         // Handle errors, such as incorrect credentials
         Alert.alert(
