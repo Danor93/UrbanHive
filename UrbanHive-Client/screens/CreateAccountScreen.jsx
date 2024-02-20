@@ -13,6 +13,7 @@ import {
 import { getConfig } from "../config/config";
 import LinearGradient from "react-native-linear-gradient";
 import UrbanHiveLogo from "../assets/images/UrbanHive_Logo.png";
+import * as Location from "expo-location";
 
 const CreateAccountScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -64,10 +65,31 @@ const CreateAccountScreen = ({ navigation }) => {
       return; // Stop the submission if the validation fails
     }
 
+    // Request permission for location
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission Denied",
+        "Allow the app to use location services."
+      );
+      return;
+    }
+
+    // Get the current location
+    const location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+
+    // You can now include the location data in your form data or handle it as needed
+    console.log(latitude, longitude);
+
+    // TODO: handle the location save in the server.
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({
+        ...formData,
+        location: { latitude, longitude },
+      }),
     };
 
     try {
@@ -178,7 +200,7 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderWidth: 1,
     marginBottom: 15,
-    color: "white",
+    color: "black",
     paddingHorizontal: 15,
     borderRadius: 20,
   },
