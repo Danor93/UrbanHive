@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,35 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import { useServerIP } from "../contexts/ServerIPContext";
+import * as SecureStore from "expo-secure-store";
 
-const HomeScreen = ({ route }) => {
+const HomeScreen = ({ navigation }) => {
   // const { username } = route.params || "Danor";
-  //TODO: Grab the username from the server and save it with expo secrue store.
-  const username = "Danor";
+  const [user, setUser] = useState(null);
+  const serverIP = useServerIP();
+
+  useEffect(() => {
+    getUserDetails();
+  }, []);
+
+  const getUserDetails = async () => {
+    try {
+      const userId = await SecureStore.getItemAsync("user_id");
+      const response = await fetch(`${serverIP}/user/${userId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch user details");
+      }
+      const userData = await response.json();
+      console.log("userData:", userData);
+      setUser(userData);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  };
 
   const ProfileImage = () => {
     // TODO: grab the image url from the user database on the server
@@ -30,7 +52,9 @@ const HomeScreen = ({ route }) => {
       style={styles.container}
     >
       <SafeAreaView style={styles.safeArea}>
-        <Text style={styles.greetingText}>Hello, {username}</Text>
+        <Text style={styles.greetingText}>
+          Hello, {user ? user.name : "User"}
+        </Text>
 
         <View style={styles.headerContainer}>
           <Text style={styles.homeTitle}>UrbanHive</Text>
@@ -44,10 +68,20 @@ const HomeScreen = ({ route }) => {
         {/* Menu View */}
         <View style={styles.menu}>
           {/*TODO: make the functionalty of those buttons. */}
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("CommunityScreen");
+            }}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>Communities Menu</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("FriendList");
+            }}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>Friend list</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}>

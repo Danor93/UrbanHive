@@ -11,14 +11,16 @@ import {
   Platform,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import { useServerIP } from "../contexts/ServerIPContext";
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [input, setInput] = useState("");
+  const serverIP = useServerIP();
 
   const handlePasswordReset = async () => {
     try {
-      const server_ip = await getConfig();
-      const response = await fetch(`${server_ip}/user/reset-password`, {
+      // const server_ip = await getConfig();
+      const response = await fetch(`${serverIP}/user/${encodeURI(input)}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -26,7 +28,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         body: JSON.stringify({ userIdentifier: input }),
       });
 
-      navigation.navigate("ResetPassword");
+      // navigation.navigate("ResetPassword");
 
       const data = await response.json();
       if (data.success) {
@@ -56,13 +58,13 @@ const ForgotPasswordScreen = ({ navigation }) => {
 
             {/* Centered content */}
             <View style={styles.centeredContent}>
-              <Text style={styles.subtitle}>Enter your email:</Text>
+              <Text style={styles.subtitle}>Enter your ID:</Text>
               <TextInput
                 style={styles.input}
                 onChangeText={setInput}
                 value={input}
-                placeholder="Email"
-                keyboardType="email-address"
+                placeholder="ID"
+                keyboardType="numeric"
                 autoCapitalize="none"
               />
               <TouchableOpacity

@@ -9,7 +9,9 @@ import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import CommunityScreen from "./screens/CommunityScreen";
 import HomeScreen from "./screens/HomeScreen";
+import FriendList from "./screens/FriendList";
 import useFonts from "./utils/hooks/useFonts";
+import { ServerIPProvider } from "./contexts/ServerIPContext";
 
 const Stack = createStackNavigator();
 
@@ -27,41 +29,48 @@ export default function App() {
   });
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginScreen">
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        {/* Set CreateAccountScreen as the initial screen */}
-        <Stack.Screen
-          name="CreateAccount"
-          component={CreateAccountScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ForgetPassword"
-          component={ForgotPasswordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="ResetPassword"
-          component={ResetPasswordScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="HomeScreen"
-          component={HomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="CommunityScreen"
-          component={CommunityScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <ServerIPProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="LoginScreen">
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          {/* Set CreateAccountScreen as the initial screen */}
+          <Stack.Screen
+            name="CreateAccount"
+            component={CreateAccountScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ForgetPassword"
+            component={ForgotPasswordScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ResetPassword"
+            component={ResetPasswordScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="HomeScreen"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CommunityScreen"
+            component={CommunityScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="FriendList"
+            component={FriendList}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </ServerIPProvider>
   );
 }

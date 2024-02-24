@@ -14,6 +14,7 @@ import { getConfig } from "../config/config";
 import LinearGradient from "react-native-linear-gradient";
 import UrbanHiveLogo from "../assets/images/UrbanHive_Logo.png";
 import * as Location from "expo-location";
+import { useServerIP } from "../contexts/ServerIPContext";
 
 const CreateAccountScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,8 @@ const CreateAccountScreen = ({ navigation }) => {
     email: "",
     password: "",
   });
+
+  const serverIP = useServerIP();
 
   const handleChange = (name, value) => {
     setFormData((prevState) => ({
@@ -62,7 +65,7 @@ const CreateAccountScreen = ({ navigation }) => {
 
   const handleSubmit = async () => {
     if (!validateInput()) {
-      return; // Stop the submission if the validation fails
+      return; // Stop if the validation fails
     }
 
     // Request permission for location
@@ -70,41 +73,62 @@ const CreateAccountScreen = ({ navigation }) => {
     if (status !== "granted") {
       Alert.alert(
         "Permission Denied",
-        "Allow the app to use location services."
+        "Location permission is required to proceed."
       );
       return;
     }
 
-    // Get the current location
-    const location = await Location.getCurrentPositionAsync({});
-    const { latitude, longitude } = location.coords;
-
-    // You can now include the location data in your form data or handle it as needed
-    console.log(latitude, longitude);
-
-    // TODO: handle the location save in the server.
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...formData,
-        location: { latitude, longitude },
-      }),
-    };
-
     try {
-      const server_ip = await getConfig();
-      const response = await fetch(`${server_ip}/user/`, requestOptions);
-      const data = await response.json();
+      // Get the current location
+      const { coords } = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = coords;
 
-      if (response.ok) {
-        Alert.alert("Success", "Account created successfully");
-        // Additional logic after successful account creation
+      // Reverse geocode to get address
+      const addresses = await Location.reverseGeocodeAsync({
+        latitude,
+        longitude,
+      });
+      if (addresses.length > 0) {
+        const address = addresses[0];
+
+        // Prepare the data to be sent to the server
+        const locationData = {
+          latitude,
+          longitude,
+          address: `${address.street}, ${address.city}, ${address.region}, ${address.country}`,
+        };
+
+        const bodyWithLocation = {
+          ...formData,
+          location: locationData,
+        };
+
+        const requestOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyWithLocation),
+        };
+
+        const response = await fetch(`${serverIP}/user/`, requestOptions);
+        const data = await response.json();
+
+        if (response.ok) {
+          Alert.alert(
+            "Success",
+            "Account created successfully, location saved."
+          );
+        } else {
+          Alert.alert("Error", `Failed to create account: ${data.message}`);
+        }
       } else {
-        Alert.alert("Error", `Failed to create account: ${data.message}`);
+        Alert.alert("Location Error", "Unable to fetch your address.");
       }
     } catch (error) {
-      Alert.alert("Network Error", "Failed to connect to the server");
+      console.error(error);
+      Alert.alert(
+        "Location Error",
+        "An error occurred while fetching your location."
+      );
     }
   };
 
