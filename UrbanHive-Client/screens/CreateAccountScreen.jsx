@@ -60,6 +60,15 @@ const CreateAccountScreen = ({ navigation }) => {
       );
       return false;
     }
+
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.phoneNumber)) {
+      Alert.alert(
+        "Validation Error",
+        "Phone Number must be exactly 10 digits long"
+      );
+      return false;
+    }
     return true;
   };
 
@@ -68,7 +77,7 @@ const CreateAccountScreen = ({ navigation }) => {
       return; // Stop if the validation fails
     }
 
-    // Request permission for location
+    //Request permission for location
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       Alert.alert(
@@ -109,6 +118,7 @@ const CreateAccountScreen = ({ navigation }) => {
           body: JSON.stringify(bodyWithLocation),
         };
 
+        console.log(requestOptions);
         const response = await fetch(`${serverIP}/user/`, requestOptions);
         const data = await response.json();
 
@@ -144,7 +154,6 @@ const CreateAccountScreen = ({ navigation }) => {
       >
         <View style={styles.container}>
           <Image source={UrbanHiveLogo} style={styles.logo} />
-          {/* <Text style={styles.title}>UrbanHive</Text> */}
           <Text style={styles.subtitle}>Create new Account</Text>
           <TextInput
             style={styles.input}
@@ -169,6 +178,14 @@ const CreateAccountScreen = ({ navigation }) => {
             placeholder="Password"
             onChangeText={(value) => handleChange("password", value)}
             secureTextEntry
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            onChangeText={(value) => handleChange("phoneNumber", value)}
+            keyboardType="numeric"
+            maxLength={10}
           />
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Sign Up</Text>

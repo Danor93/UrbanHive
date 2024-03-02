@@ -15,14 +15,15 @@ import LinearGradient from "react-native-linear-gradient";
 import * as SecureStore from "expo-secure-store";
 import { useServerIP } from "../contexts/ServerIPContext";
 import * as Location from "expo-location";
+import { useUser } from "../contexts/UserContext";
 
 const FriendList = () => {
-  const [userData, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [receiverId, setReceiverId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useUser();
 
   const serverIP = useServerIP();
 
@@ -32,15 +33,7 @@ const FriendList = () => {
 
   const getUserDetails = async () => {
     try {
-      const userId = await SecureStore.getItemAsync("user_id");
-      const response = await fetch(`${serverIP}/user/${userId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch user details");
-      }
-      const userData = await response.json();
-
-      setUser(userData);
-      setFriends(userData.friends || []);
+      setFriends(user.friends || []);
       setIsLoading(false);
     } catch (error) {
       Alert.alert("Error", error.message);

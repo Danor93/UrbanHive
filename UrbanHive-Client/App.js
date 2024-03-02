@@ -10,8 +10,11 @@ import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import CommunityScreen from "./screens/CommunityScreen";
 import HomeScreen from "./screens/HomeScreen";
 import FriendList from "./screens/FriendList";
+import MyRequestsScreen from "./screens/MyRequestScreen";
+import CommunityLobby from "./screens/CommunityLobby";
 import useFonts from "./utils/hooks/useFonts";
 import { ServerIPProvider } from "./contexts/ServerIPContext";
+import { UserProvider } from "./contexts/UserContext";
 
 const Stack = createStackNavigator();
 
@@ -29,48 +32,60 @@ export default function App() {
   });
 
   return (
-    <ServerIPProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="LoginScreen">
-          <Stack.Screen
-            name="LoginScreen"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          {/* Set CreateAccountScreen as the initial screen */}
-          <Stack.Screen
-            name="CreateAccount"
-            component={CreateAccountScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ForgetPassword"
-            component={ForgotPasswordScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="ResetPassword"
-            component={ResetPasswordScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="HomeScreen"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="CommunityScreen"
-            component={CommunityScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="FriendList"
-            component={FriendList}
-            options={{ headerShown: false }}
-          />
-        </Stack.Navigator>
-        <StatusBar style="auto" />
-      </NavigationContainer>
-    </ServerIPProvider>
+    <UserProvider>
+      <ServerIPProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="LoginScreen">
+            <Stack.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+              options={{ headerShown: false }}
+            />
+            {/* Set CreateAccountScreen as the initial screen */}
+            <Stack.Screen
+              name="CreateAccount"
+              component={CreateAccountScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ForgetPassword"
+              component={ForgotPasswordScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ResetPassword"
+              component={ResetPasswordScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="HomeScreen"
+              component={HomeScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CommunityScreen"
+              component={CommunityScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="FriendList"
+              component={FriendList}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MyRequestsScreen"
+              component={MyRequestsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CommunityLobby"
+              component={CommunityLobby}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </ServerIPProvider>
+    </UserProvider>
   );
 }

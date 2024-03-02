@@ -11,11 +11,13 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import { useServerIP } from "../contexts/ServerIPContext";
 import * as SecureStore from "expo-secure-store";
+import { useUser } from "../contexts/UserContext";
 
 const HomeScreen = ({ navigation }) => {
   // const { username } = route.params || "Danor";
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const serverIP = useServerIP();
+  const { SaveUser, user } = useUser();
 
   useEffect(() => {
     getUserDetails();
@@ -29,8 +31,9 @@ const HomeScreen = ({ navigation }) => {
         throw new Error("Failed to fetch user details");
       }
       const userData = await response.json();
+      SaveUser(userData);
       console.log("userData:", userData);
-      setUser(userData);
+      // setUser(userData);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -67,10 +70,9 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Menu View */}
         <View style={styles.menu}>
-          {/*TODO: make the functionalty of those buttons. */}
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("CommunityScreen");
+              navigation.navigate("CommunityLobby");
             }}
             style={styles.button}
           >
@@ -84,7 +86,12 @@ const HomeScreen = ({ navigation }) => {
           >
             <Text style={styles.buttonText}>Friend list</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("MyRequestsScreen");
+            }}
+            style={styles.button}
+          >
             <Text style={styles.buttonText}>My Requests</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.exitButton}>

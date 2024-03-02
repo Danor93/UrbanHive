@@ -9,8 +9,11 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useUser } from "../contexts/UserContext";
 
-const CommunityScreen = () => {
+const CommunityScreen = ({ route }) => {
+  const { communityName } = route.params;
+  const { user } = useUser();
   // TODO: grab the members from the server.
   const onlineMembers = [
     { id: "1", name: "Aaron Loeb" },
@@ -33,18 +36,18 @@ const CommunityScreen = () => {
       style={styles.container}
     >
       <View style={styles.header}>
-        <Text style={styles.welcomeText}>Hello, Moshe</Text>
+        <Text style={styles.welcomeText}>Hello,{user.name}</Text>
         <Image
           source={require("../assets/images/Empty_Profile.png")}
           style={styles.profilePicture}
         />
       </View>
 
-      <Text style={styles.communityName}>Community name</Text>
+      <Text style={styles.communityName}>{communityName}</Text>
 
       <View style={styles.locationContainer}>
         <Ionicons name="location-sharp" size={20} color="red" />
-        <Text style={styles.locationText}>Snunit, Karmiel</Text>
+        <Text style={styles.locationText}>{user.location.address}</Text>
       </View>
 
       <View style={styles.buttonsContainer}>
@@ -135,7 +138,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   locationText: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "EncodeSansExpanded-Light",
     color: "white",
   },
