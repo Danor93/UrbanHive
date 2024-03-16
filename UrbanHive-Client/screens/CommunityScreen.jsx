@@ -45,7 +45,7 @@ const CommunityScreen = ({ navigation, route }) => {
         }
       );
       const data = await response.json();
-      data.posts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+      data.posts.sort((a, b) => new Date(a.post_date) - new Date(b.post_date));
       setCommunityDetails(data);
     } catch (error) {
       console.error(error);
@@ -199,9 +199,10 @@ const CommunityScreen = ({ navigation, route }) => {
 
   const renderComment = (comment, postId) => (
     <View key={comment.comment_id} style={styles.commentContainer}>
-      <Text style={styles.comment}>
-        {comment.user_name}: {comment.text}
-      </Text>
+      <View style={styles.commentTextContainer}>
+        <Text style={styles.commentUserName}>{comment.user_name}:</Text>
+        <Text style={styles.commentText}>{comment.text}</Text>
+      </View>
       {comment.user_id === user.id && (
         <TouchableOpacity
           onPress={() => handleDeleteComment(postId, comment.comment_id)}
@@ -263,7 +264,14 @@ const CommunityScreen = ({ navigation, route }) => {
             />
             <Text style={styles.buttonText}>Show Members</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("CommunityCreateEvent", {
+                communityName: communityName,
+              });
+            }}
+            style={styles.button}
+          >
             <Ionicons
               name="calendar"
               size={20}
@@ -272,7 +280,14 @@ const CommunityScreen = ({ navigation, route }) => {
             />
             <Text style={styles.buttonText}>Create Event</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("CommunityJoinEventScreen", {
+                communityName: communityName,
+              });
+            }}
+            style={styles.button}
+          >
             <Ionicons
               name="body"
               size={20}
@@ -452,11 +467,22 @@ const styles = StyleSheet.create({
   commentContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start", // Align items to the start of the flex-direction
     backgroundColor: "#f0f0f0",
     padding: 8,
     borderRadius: 5,
     marginVertical: 4,
+  },
+  commentTextContainer: {
+    flex: 1,
+  },
+  commentUserName: {
+    fontFamily: "EncodeSansExpanded-SemiBold",
+    fontSize: 20,
+  },
+  commentText: {
+    fontFamily: "EncodeSansExpanded-Medium",
+    fontSize: 16,
   },
   comment: {
     flex: 1,
