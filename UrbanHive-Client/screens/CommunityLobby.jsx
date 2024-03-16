@@ -61,8 +61,40 @@ const CommunityLobby = ({ navigation }) => {
     setModalVisible(false);
   };
 
-  const handleFindCommunity = () => {
-    // TODO:Logic for finding community by radius (No endpoint yet)
+  const handleFindCommunity = async () => {
+    try {
+      setModalVisible(false);
+      const radius = inputValue;
+      console.log("radius:", radius);
+      const location = user.location;
+      console.log("location:", user.location);
+
+      const response = await fetch(
+        `${serverIP}/communities/get_communities_by_radius_and_location`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            radius: radius,
+            location: location,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        // Process the data as needed, e.g., updating the state or navigating
+        console.log("Communities found:", data);
+      } else {
+        Alert.alert("Error", "Failed to find communities");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Alert.alert("Error", "An error occurred while finding communities");
+    }
+
     setModalVisible(false);
   };
 

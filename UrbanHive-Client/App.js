@@ -8,10 +8,12 @@ import LoginScreen from "./screens/LoginScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import CommunityScreen from "./screens/CommunityScreen";
+import CommunityLobby from "./screens/CommunityLobby";
+import CommunityMembersScreen from "./screens/CommunityMembers";
+import CommunityPublishPost from "./screens/CommunityPublishPost";
 import HomeScreen from "./screens/HomeScreen";
 import FriendList from "./screens/FriendList";
 import MyRequestsScreen from "./screens/MyRequestScreen";
-import CommunityLobby from "./screens/CommunityLobby";
 import useFonts from "./utils/hooks/useFonts";
 import { ServerIPProvider } from "./contexts/ServerIPContext";
 import { UserProvider } from "./contexts/UserContext";
@@ -80,6 +82,16 @@ export default function App() {
             <Stack.Screen
               name="CommunityLobby"
               component={CommunityLobby}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CommunityMembersScreen"
+              component={CommunityMembersScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CommunityPublishPost"
+              component={CommunityPublishPost}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,23 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  TextInput,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "../contexts/UserContext";
+import { useServerIP } from "../contexts/ServerIPContext";
 
-const CommunityScreen = ({ route }) => {
+const CommunityScreen = ({ navigation, route }) => {
   const { communityName } = route.params;
   const { user } = useUser();
+  const serverIP = useServerIP();
+  const [communityDetails, setCommunityDetails] = useState(null);
+  const [commentTexts, setCommentTexts] = useState({});
+  const [refreshing, setRefreshing] = useState(false);
+
   // TODO: grab the members from the server.
   const onlineMembers = [
     { id: "1", name: "Aaron Loeb" },
@@ -23,10 +32,191 @@ const CommunityScreen = ({ route }) => {
     { id: "5", name: "Pedro Fernandes" },
   ];
 
-  const renderItem = ({ item }) => (
-    <View style={styles.memberItem}>
+  const fetchData = async () => {
+    try {
+      const area = encodeURIComponent(communityName);
+      const response = await fetch(
+        `${serverIP}/communities/details_by_area?area=${area}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      data.posts.sort((a, b) => new Date(b.post_date) - new Date(a.post_date));
+      setCommunityDetails(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData().then(() => setRefreshing(false));
+  };
+
+  const handlePostComment = async (postId) => {
+    if (!commentTexts[postId]) return; // Don't post empty comments
+
+    const commentData = {
+      post_id: postId,
+      comment_text: commentTexts[postId],
+      user_id: user.id,
+      user_name: user.name,
+    };
+
+    // Send comment to server
+    try {
+      const response = await fetch(`${serverIP}/posting/add_comment_to_post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(commentData),
+      });
+
+      if (response.ok) {
+        // Fetch updated community details or update state locally to reflect new comment
+      } else {
+        throw new Error("Failed to post comment");
+      }
+    } catch (error) {
+      console.error("Error posting comment:", error);
+    }
+
+    // Reset comment input field
+    setCommentTexts({ ...commentTexts, [postId]: "" });
+  };
+
+  const handleDeletePost = async (postId) => {
+    try {
+      const response = await fetch(
+        `http://192.168.1.143:5000/posting/delete_post`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ post_id: postId }),
+        }
+      );
+
+      if (response.ok) {
+        // Remove the post from the communityDetails state
+        setCommunityDetails({
+          ...communityDetails,
+          posts: communityDetails.posts.filter(
+            (post) => post.post_id !== postId
+          ),
+        });
+      } else {
+        throw new Error("Failed to delete post");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    const deleteData = {
+      post_id: postId,
+      comment_id: commentId,
+    };
+
+    try {
+      const response = await fetch(
+        `${serverIP}/posting/delete_comment_from_post`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(deleteData),
+        }
+      );
+
+      if (response.ok) {
+        // Update the community details to remove the deleted comment
+        setCommunityDetails({
+          ...communityDetails,
+          posts: communityDetails.posts.map((post) => {
+            if (post.post_id === postId) {
+              return {
+                ...post,
+                comments: post.comments.filter(
+                  (comment) => comment.comment_id !== commentId
+                ),
+              };
+            }
+            return post;
+          }),
+        });
+      } else {
+        throw new Error("Failed to delete comment");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
+
+  const renderPost = ({ item }) => (
+    <View style={styles.postContainer}>
+      {item.user_id === user.id && (
+        <TouchableOpacity
+          onPress={() => handleDeletePost(item.post_id)}
+          style={styles.deletePostButton}
+        >
+          <Ionicons name="close-circle" size={24} color="red" />
+        </TouchableOpacity>
+      )}
+      <Text style={styles.postHeader}>{item.post_content.header}</Text>
+      <Text style={styles.postBody}>{item.post_content.body}</Text>
+      {item.comments &&
+        item.comments.map((comment) => renderComment(comment, item.post_id))}
+
+      <TextInput
+        style={styles.commentInput}
+        placeholder="Write a comment..."
+        onChangeText={(text) =>
+          setCommentTexts({ ...commentTexts, [item.post_id]: text })
+        }
+        value={commentTexts[item.post_id]}
+      />
+      <TouchableOpacity
+        onPress={() => handlePostComment(item.post_id)}
+        style={styles.commentButton}
+      >
+        <Text style={styles.commentButtonText}>Post Comment</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderComment = (comment, postId) => (
+    <View key={comment.comment_id} style={styles.commentContainer}>
+      <Text style={styles.comment}>
+        {comment.user_name}: {comment.text}
+      </Text>
+      {comment.user_id === user.id && (
+        <TouchableOpacity
+          onPress={() => handleDeleteComment(postId, comment.comment_id)}
+          style={styles.deleteCommentButton}
+        >
+          <Ionicons name="close-circle" size={20} color="red" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
+  const renderMember = (member) => (
+    <View style={styles.memberItem} key={member.id}>
       <Ionicons name="person-circle" size={40} color="white" />
-      <Text style={styles.memberName}>{item.name}</Text>
+      <Text style={styles.memberName}>{member.name}</Text>
     </View>
   );
 
@@ -35,82 +225,115 @@ const CommunityScreen = ({ route }) => {
       colors={["#7168DF", "#4587AF", "#0DB572"]}
       style={styles.container}
     >
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>Hello,{user.name}</Text>
-        <Image
-          source={require("../assets/images/Empty_Profile.png")}
-          style={styles.profilePicture}
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        style={{ flex: 1 }}
+      >
+        <View style={styles.header}>
+          <Text style={styles.welcomeText}>Hello,{user.name}</Text>
+          <Image
+            source={require("../assets/images/Empty_Profile.png")}
+            style={styles.profilePicture}
+          />
+        </View>
+
+        <Text style={styles.communityName}>{communityName}</Text>
+
+        <View style={styles.locationContainer}>
+          <Ionicons name="location-sharp" size={20} color="red" />
+          <Text style={styles.locationText}>{user.location.address}</Text>
+        </View>
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("CommunityMembersScreen", {
+                communityName: communityName,
+              });
+            }}
+            style={styles.button}
+          >
+            <Ionicons
+              name="people"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>Show Members</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Ionicons
+              name="calendar"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>Create Event</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Ionicons
+              name="body"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>Join Events</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("CommunityPublishPost", {
+                communityName: communityName,
+              });
+            }}
+            style={styles.button}
+          >
+            <Ionicons
+              name="clipboard"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>Publish Post</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button}>
+            <Ionicons
+              name="moon"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>Night Watch</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Online Members List */}
+        <Text style={styles.onlineMembersTitle}>Online Members</Text>
+        <View style={styles.membersList}>
+          {onlineMembers.map(renderMember)}
+        </View>
+
+        {/* Post List */}
+        <FlatList
+          data={communityDetails?.posts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.post_id}
+          ListFooterComponent={
+            <View style={{ paddingVertical: 40 }}>
+              {/* Back to Home Page Button */}
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("CommunityLobby");
+                }}
+                style={styles.backButton}
+              >
+                <Text style={styles.backButtonText}>Back to Home Page</Text>
+              </TouchableOpacity>
+            </View>
+          }
         />
-      </View>
-
-      <Text style={styles.communityName}>{communityName}</Text>
-
-      <View style={styles.locationContainer}>
-        <Ionicons name="location-sharp" size={20} color="red" />
-        <Text style={styles.locationText}>{user.location.address}</Text>
-      </View>
-
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Ionicons
-            name="people"
-            size={20}
-            color="white"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Show Members</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Ionicons
-            name="calendar"
-            size={20}
-            color="white"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Create Event</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Ionicons
-            name="body"
-            size={20}
-            color="white"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Join Events</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Ionicons
-            name="clipboard"
-            size={20}
-            color="white"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Publish Post</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
-          <Ionicons
-            name="moon"
-            size={20}
-            color="white"
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Night Watch</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Online Members List */}
-      <Text style={styles.onlineMembersTitle}>Online Members</Text>
-      <FlatList
-        data={onlineMembers}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        style={styles.membersList}
-      />
-
-      {/* Back to Home Page Button */}
-      <TouchableOpacity style={styles.backButton}>
-        <Text style={styles.backButtonText}>Back to Home Page</Text>
-      </TouchableOpacity>
+      </ScrollView>
     </LinearGradient>
   );
 };
@@ -210,6 +433,63 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     textAlign: "center",
+  },
+  postContainer: {
+    backgroundColor: "white",
+    padding: 15,
+    borderRadius: 20,
+    marginVertical: 8,
+  },
+  postHeader: {
+    fontSize: 20,
+    fontFamily: "EncodeSansExpanded-Bold",
+  },
+  postBody: {
+    fontSize: 16,
+    marginVertical: 8,
+    fontFamily: "EncodeSansExpanded-Medium",
+  },
+  commentContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    padding: 8,
+    borderRadius: 5,
+    marginVertical: 4,
+  },
+  comment: {
+    flex: 1,
+    fontSize: 14,
+    marginRight: 10,
+    fontFamily: "EncodeSansExpanded-Medium",
+  },
+  commentInput: {
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginTop: 5,
+  },
+  commentButton: {
+    backgroundColor: "#FD844D",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginTop: 5,
+  },
+  commentButtonText: {
+    color: "white",
+    fontFamily: "EncodeSansExpanded-SemiBold",
+  },
+  deletePostButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 5,
+  },
+  deleteCommentButton: {
+    padding: 5,
   },
 });
 
