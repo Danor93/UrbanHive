@@ -12,6 +12,7 @@ import LinearGradient from "react-native-linear-gradient";
 import { useServerIP } from "../contexts/ServerIPContext";
 import * as SecureStore from "expo-secure-store";
 import { useUser } from "../contexts/UserContext";
+import { fetchUserDetails } from "../utils/apiUtils";
 
 const HomeScreen = ({ navigation }) => {
   // const { username } = route.params || "Danor";
@@ -20,24 +21,19 @@ const HomeScreen = ({ navigation }) => {
   const { SaveUser, user } = useUser();
 
   useEffect(() => {
+    const getUserDetails = async () => {
+      try {
+        const userId = await SecureStore.getItemAsync("user_id");
+        const userData = await fetchUserDetails(serverIP, userId);
+        SaveUser(userData);
+        console.log("userData:", userData);
+      } catch (error) {
+        Alert.alert("Error", error.message);
+      }
+    };
+
     getUserDetails();
   }, []);
-
-  const getUserDetails = async () => {
-    try {
-      const userId = await SecureStore.getItemAsync("user_id");
-      const response = await fetch(`${serverIP}/user/${userId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch user details");
-      }
-      const userData = await response.json();
-      SaveUser(userData);
-      console.log("userData:", userData);
-      // setUser(userData);
-    } catch (error) {
-      Alert.alert("Error", error.message);
-    }
-  };
 
   const ProfileImage = () => {
     // TODO: grab the image url from the user database on the server

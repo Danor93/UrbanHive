@@ -11,6 +11,7 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import { useServerIP } from "../contexts/ServerIPContext";
 import { useUser } from "../contexts/UserContext";
+import { respondToFriendRequest } from "../utils/apiUtils";
 
 const MyRequestsScreen = ({ navigation }) => {
   const { user } = useUser();
@@ -22,33 +23,14 @@ const MyRequestsScreen = ({ navigation }) => {
     setRequests(user ? user.requests : []);
   }, [user]);
 
-  const handleResponse = async (sender_id, response) => {
+  const handleResponse = async (senderId, response) => {
     try {
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          receiver_id: user.id,
-          sender_id: user.requests.sender_id,
-          response: response,
-        }),
-      };
+      await respondToFriendRequest(serverIP, user.id, senderId, response);
 
-      const response = await fetch(
-        `${serverIP}/user/respond-to-request`,
-        requestOptions
-      );
-
-      if (response.ok) {
-        Alert.alert("Success", "Response sent successfully");
-        // Update the requests state to reflect the change
-        setRequests(requests.filter((req) => req.sender_id !== sender_id));
-      } else {
-        Alert.alert("Error", "Failed to send response");
-      }
+      Alert.alert("Success", "Response sent successfully");
+      setRequests(requests.filter((req) => req.sender_id !== senderId));
     } catch (error) {
-      console.error("Error:", error);
-      Alert.alert("Error", "An error occurred while sending response");
+      Alert.alert("Error", error.message);
     }
   };
 

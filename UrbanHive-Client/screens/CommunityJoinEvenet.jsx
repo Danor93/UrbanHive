@@ -9,6 +9,7 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+import { joinEvent } from "../utils/apiUtils";
 
 const CommunityJoinEventScreen = ({ route }) => {
   const [events, setEvents] = useState([]);
@@ -40,27 +41,20 @@ const CommunityJoinEventScreen = ({ route }) => {
   }, [route.params.communityName, serverIP]);
 
   const handleJoinEvent = async (eventItem) => {
-    const requestBody = JSON.stringify({
-      user_id: user.id,
-      community_name: eventItem.community_name,
-      event_name: eventItem.event_name,
-      response: true,
-    });
-
     try {
-      const response = await fetch(
-        `${serverIP}/events/respond_to_event_request`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: requestBody,
-        }
+      await joinEvent(
+        serverIP,
+        user.id,
+        eventItem.community_name,
+        eventItem.event_name
       );
+      console.log(`Joined event ${eventItem.event_name} successfully`);
     } catch (error) {
-      console.error(error);
-      console.error(`Failed to send event ${eventItem.event_name}:`, error);
+      console.error(`Failed to join event ${eventItem.event_name}:`, error);
+      Alert.alert(
+        "Error",
+        `An error occurred while joining event ${eventItem.event_name}`
+      );
     }
   };
 

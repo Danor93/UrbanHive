@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import LinearGradient from "react-native-linear-gradient";
 import UrbanHiveLogo from "../assets/images/UrbanHive_Logo.png";
 import * as Location from "expo-location";
 import { useServerIP } from "../contexts/ServerIPContext";
+import { createAccountWithLocation } from "../utils/apiUtils";
 
 const CreateAccountScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -23,6 +24,24 @@ const CreateAccountScreen = ({ navigation }) => {
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const getLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Denied",
+          "Location permission is required to proceed."
+        );
+        return;
+      }
+
+      let { coords } = await Location.getCurrentPositionAsync({});
+      // Proceed with your location logic
+    };
+
+    getLocation();
+  }, []);
 
   const serverIP = useServerIP();
 
@@ -107,28 +126,20 @@ const CreateAccountScreen = ({ navigation }) => {
           address: `${address.street}, ${address.city}, ${address.region}, ${address.country}`,
         };
 
-        const bodyWithLocation = {
+        const accountDataWithLocation = {
           ...formData,
           location: locationData,
         };
 
-        const requestOptions = {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(bodyWithLocation),
-        };
-
-        console.log(requestOptions);
-        const response = await fetch(`${serverIP}/user/`, requestOptions);
-        const data = await response.json();
-
-        if (response.ok) {
+        try {
+          await createAccountWithLocation(serverIP, accountDataWithLocation);
           Alert.alert(
             "Success",
             "Account created successfully, location saved."
           );
-        } else {
-          Alert.alert("Error", `Failed to create account: ${data.message}`);
+          navigation.navigate("LoginScreen");
+        } catch (error) {
+          Alert.alert("Error", error.message);
         }
       } else {
         Alert.alert("Location Error", "Unable to fetch your address.");

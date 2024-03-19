@@ -11,6 +11,7 @@ import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useServerIP } from "../contexts/ServerIPContext";
 import { useUser } from "../contexts/UserContext";
+import { fetchCommunityMembers } from "../utils/apiUtils";
 
 const CommunityMembersScreen = ({ route }) => {
   const { communityName } = route.params;
@@ -20,15 +21,8 @@ const CommunityMembersScreen = ({ route }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    const area = encodeURIComponent(communityName);
-    fetch(`${serverIP}/communities/details_by_area?area=${area}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setMembers(data.communityMembers))
+    fetchCommunityMembers(serverIP, communityName)
+      .then((members) => setMembers(members))
       .catch((error) => console.error(error));
   }, []);
 

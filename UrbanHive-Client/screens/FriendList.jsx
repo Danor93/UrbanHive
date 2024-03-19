@@ -14,8 +14,8 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import * as SecureStore from "expo-secure-store";
 import { useServerIP } from "../contexts/ServerIPContext";
-import * as Location from "expo-location";
 import { useUser } from "../contexts/UserContext";
+import { addFriend } from "../utils/apiUtils";
 
 const FriendList = () => {
   const [friends, setFriends] = useState([]);
@@ -28,10 +28,10 @@ const FriendList = () => {
   const serverIP = useServerIP();
 
   useEffect(() => {
-    getUserDetails();
+    getUserFriend();
   }, []);
 
-  const getUserDetails = async () => {
+  const getUserFriend = async () => {
     try {
       setFriends(user.friends || []);
       setIsLoading(false);
@@ -43,22 +43,10 @@ const FriendList = () => {
   const addFriend = async () => {
     try {
       const userId = await SecureStore.getItemAsync("user_id");
-      const response = await fetch(`${serverIP}/user/add-friend`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sender_id: userId,
-          receiver_id: receiverId,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add friend");
-      }
-      Alert.alert("Success", "Friend added successfully");
+      const successMessage = await addFriend(serverIP, userId, receiverId);
+      Alert.alert("Success", successMessage);
       setModalVisible(false);
-      getUserDetails(); // Refresh friend list
+      getUserFriend(); // Refresh the friend list
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -77,7 +65,6 @@ const FriendList = () => {
           onChangeText={setSearchQuery}
         />
         {isLoading ? (
-          // Consider using a more visually appealing loading indicator like ActivityIndicator
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
             <Text>Loading friends...</Text>
@@ -129,7 +116,7 @@ const FriendList = () => {
             onChangeText={setReceiverId}
             style={styles.input}
           />
-          <Button title="Submit" onPress={addFriend} />
+          <Button title="Submit" onPress={handleAddFriend} />
         </View>
       </Modal>
     </View>

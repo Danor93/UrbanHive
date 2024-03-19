@@ -11,6 +11,10 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+import {
+  createCommunity,
+  findCommunitiesByRadiusAndLocation,
+} from "../utils/apiUtils";
 
 const CommunityLobby = ({ navigation }) => {
   const { user, updateUserCommunities } = useUser();
@@ -25,37 +29,24 @@ const CommunityLobby = ({ navigation }) => {
 
   const handleCreateCommunity = async () => {
     try {
-      const response = await fetch(`${serverIP}/communities/add_community`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          manager_id: user.id,
-          area: inputValue,
-          location: user.location,
-        }),
-      });
+      const data = await createCommunity(
+        serverIP,
+        user.id,
+        inputValue,
+        user.location
+      );
+      Alert.alert("Success", "Community created successfully");
 
-      if (response.ok) {
-        const data = await response.json();
-        Alert.alert("Success", "Community created successfully");
-
-        // Update the user's communities
-        const newCommunity = {
-          _id: data.id, // Use the ID from the response
-          area: inputValue, // Use the area name from the input
-          location: user.location, // Use the user's location
-        };
-        console.log("newCommunity:", newCommunity);
-        updateUserCommunities(newCommunity);
-        // navigation.navigate("CommunityScreen", { communityName: inputValue });
-      } else {
-        Alert.alert("Error", "Failed to create community");
-      }
+      // Update the user's communities with the new data
+      const newCommunity = {
+        _id: data.id,
+        area: inputValue,
+        location: user.location,
+      };
+      console.log("newCommunity:", newCommunity);
+      updateUserCommunities(newCommunity);
     } catch (error) {
-      console.error("Error:", error);
-      Alert.alert("Error", "An error occurred while creating community");
+      Alert.alert("Error", error.message);
     }
 
     setModalVisible(false);
@@ -64,38 +55,16 @@ const CommunityLobby = ({ navigation }) => {
   const handleFindCommunity = async () => {
     try {
       setModalVisible(false);
-      const radius = inputValue;
-      console.log("radius:", radius);
-      const location = user.location;
-      console.log("location:", user.location);
-
-      const response = await fetch(
-        `${serverIP}/communities/get_communities_by_radius_and_location`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            radius: radius,
-            location: location,
-          }),
-        }
+      const data = await findCommunitiesByRadiusAndLocation(
+        serverIP,
+        inputValue,
+        user.location
       );
-
-      if (response.ok) {
-        const data = await response.json();
-        // Process the data as needed, e.g., updating the state or navigating
-        console.log("Communities found:", data);
-      } else {
-        Alert.alert("Error", "Failed to find communities");
-      }
+      console.log("Communities found:", data);
+      // Process the data as needed, e.g., updating the state or navigating
     } catch (error) {
-      console.error("Error:", error);
-      Alert.alert("Error", "An error occurred while finding communities");
+      Alert.alert("Error", error.message);
     }
-
-    setModalVisible(false);
   };
 
   return (

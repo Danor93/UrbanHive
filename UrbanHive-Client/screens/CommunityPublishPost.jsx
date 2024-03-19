@@ -3,6 +3,7 @@ import { View, TextInput, TouchableOpacity, Text, Alert } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+import { publishPost } from "../utils/apiUtils";
 
 const CommunityPublishPost = ({ navigation, route }) => {
   const { communityName } = route.params;
@@ -11,34 +12,13 @@ const CommunityPublishPost = ({ navigation, route }) => {
   const [header, setHeader] = useState("");
   const [body, setBody] = useState("");
 
-  const publishPost = async () => {
-    const postDate = new Date().toISOString();
-    const postData = {
-      user_id: user.id,
-      community_area: communityName,
-      post_content: { header, body },
-      post_date: postDate,
-    };
-
+  const publishPostHandler = async () => {
     try {
-      const response = await fetch(`${serverIP}/posting/add_post`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(postData),
-      });
-
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        // Handle the response as needed
-        Alert.alert("Success", "Post published successfully!");
-        navigation.goBack();
-      } else {
-        throw new Error("Server responded with an error!");
-      }
+      await publishPost(serverIP, user.id, communityName, header, body);
+      Alert.alert("Success", "Post published successfully!");
+      navigation.goBack();
     } catch (error) {
-      console.error("Error publishing post:", error);
+      console.error("Error:", error);
       Alert.alert("Error", "Failed to publish post!");
     }
   };
@@ -66,7 +46,10 @@ const CommunityPublishPost = ({ navigation, route }) => {
         />
       </View>
 
-      <TouchableOpacity style={styles.publishButton} onPress={publishPost}>
+      <TouchableOpacity
+        style={styles.publishButton}
+        onPress={publishPostHandler}
+      >
         <Text style={styles.publishButtonText}>Publish Post</Text>
       </TouchableOpacity>
     </LinearGradient>

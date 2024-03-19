@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+import { createEvent } from "../utils/apiUtils";
 
 const CommunityCreateEvent = ({ navigation, route }) => {
   const { user } = useUser();
@@ -24,17 +26,14 @@ const CommunityCreateEvent = ({ navigation, route }) => {
   const [endTime, setEndTime] = useState(new Date());
   const [guestList, setGuestList] = useState([""]); // Start with one empty input
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     const filteredGuestList = guestList.filter(
       (guestId) => guestId.trim() !== ""
     );
     const eventDetails = {
       initiator: user.id,
       community_name: communityName,
-      location: {
-        latitude: user.location.latitude,
-        longitude: user.location.longitude,
-      },
+      location: user.location,
       event_name: eventName,
       event_type: eventType,
       start_time: startTime.toISOString(),
@@ -42,20 +41,14 @@ const CommunityCreateEvent = ({ navigation, route }) => {
       guest_list: filteredGuestList,
     };
 
-    fetch(`${serverIP}/events/add_event`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(eventDetails),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        navigation.goBack();
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    try {
+      const data = await createEvent(serverIP, eventDetails);
+      Alert.alert("Success", "Event created successfully");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error:", error);
+      Alert.alert("Error", "An error occurred while creating event");
+    }
   };
 
   const handleGuestChange = (text, index) => {

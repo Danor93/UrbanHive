@@ -14,6 +14,12 @@ import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+import {
+  fetchCommunityDetails,
+  postComment,
+  deletePost,
+  deleteComment,
+} from "../utils/apiUtils";
 
 const CommunityScreen = ({ navigation, route }) => {
   const { communityName } = route.params;
@@ -32,19 +38,10 @@ const CommunityScreen = ({ navigation, route }) => {
     { id: "5", name: "Pedro Fernandes" },
   ];
 
+  // Adjusted fetchData to use the utility function
   const fetchData = async () => {
     try {
-      const area = encodeURIComponent(communityName);
-      const response = await fetch(
-        `${serverIP}/communities/details_by_area?area=${area}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = await response.json();
+      const data = await fetchCommunityDetails(serverIP, communityName);
       data.posts.sort((a, b) => new Date(a.post_date) - new Date(b.post_date));
       setCommunityDetails(data);
     } catch (error) {
@@ -61,6 +58,7 @@ const CommunityScreen = ({ navigation, route }) => {
     fetchData().then(() => setRefreshing(false));
   };
 
+  // Handle posting a comment
   const handlePostComment = async (postId) => {
     if (!commentTexts[postId]) return; // Don't post empty comments
 
@@ -71,58 +69,33 @@ const CommunityScreen = ({ navigation, route }) => {
       user_name: user.name,
     };
 
-    // Send comment to server
     try {
-      const response = await fetch(`${serverIP}/posting/add_comment_to_post`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(commentData),
-      });
-
-      if (response.ok) {
-        // Fetch updated community details or update state locally to reflect new comment
-      } else {
-        throw new Error("Failed to post comment");
-      }
+      await postComment(serverIP, commentData);
+      console.log("Comment posted successfully");
+      setCommentTexts({ ...commentTexts, [postId]: "" }); // Reset comment input field
     } catch (error) {
       console.error("Error posting comment:", error);
+      Alert.alert("Error", "Failed to post comment");
     }
-
-    // Reset comment input field
-    setCommentTexts({ ...commentTexts, [postId]: "" });
   };
 
+  // Handle deleting a post
   const handleDeletePost = async (postId) => {
     try {
-      const response = await fetch(
-        `http://192.168.1.143:5000/posting/delete_post`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ post_id: postId }),
-        }
-      );
-
-      if (response.ok) {
-        // Remove the post from the communityDetails state
-        setCommunityDetails({
-          ...communityDetails,
-          posts: communityDetails.posts.filter(
-            (post) => post.post_id !== postId
-          ),
-        });
-      } else {
-        throw new Error("Failed to delete post");
-      }
+      await deletePost(serverIP, postId);
+      // Remove the post from the communityDetails state
+      setCommunityDetails({
+        ...communityDetails,
+        posts: communityDetails.posts.filter((post) => post.post_id !== postId),
+      });
+      console.log("Post deleted successfully");
     } catch (error) {
       console.error("Error deleting post:", error);
+      Alert.alert("Error", "Failed to delete post");
     }
   };
 
+  // Handle deleting a comment
   const handleDeleteComment = async (postId, commentId) => {
     const deleteData = {
       post_id: postId,
@@ -130,38 +103,26 @@ const CommunityScreen = ({ navigation, route }) => {
     };
 
     try {
-      const response = await fetch(
-        `${serverIP}/posting/delete_comment_from_post`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(deleteData),
-        }
-      );
-
-      if (response.ok) {
-        // Update the community details to remove the deleted comment
-        setCommunityDetails({
-          ...communityDetails,
-          posts: communityDetails.posts.map((post) => {
-            if (post.post_id === postId) {
-              return {
-                ...post,
-                comments: post.comments.filter(
-                  (comment) => comment.comment_id !== commentId
-                ),
-              };
-            }
-            return post;
-          }),
-        });
-      } else {
-        throw new Error("Failed to delete comment");
-      }
+      await deleteComment(serverIP, deleteData);
+      // Update the community details to remove the deleted comment
+      setCommunityDetails({
+        ...communityDetails,
+        posts: communityDetails.posts.map((post) => {
+          if (post.post_id === postId) {
+            return {
+              ...post,
+              comments: post.comments.filter(
+                (comment) => comment.comment_id !== commentId
+              ),
+            };
+          }
+          return post;
+        }),
+      });
+      console.log("Comment deleted successfully");
     } catch (error) {
       console.error("Error deleting comment:", error);
+      Alert.alert("Error", "Failed to delete comment");
     }
   };
 

@@ -12,8 +12,7 @@ import LinearGradient from "react-native-linear-gradient";
 import * as SecureStore from "expo-secure-store";
 // import { getConfig } from "../config/config";
 import { useServerIP } from "../contexts/ServerIPContext";
-
-// import UserIcon from "../assets/user-icon.png"; // Replace with your user icon image path
+import { loginUser } from "../utils/apiUtils";
 
 const LoginScreen = ({ navigation }) => {
   const [ID, setID] = useState("");
@@ -26,34 +25,22 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: ID, password: password }),
-    };
-
     try {
-      const response = await fetch(
-        `${serverIP}/users/password`,
-        requestOptions
-      );
+      const { status, data } = await loginUser(serverIP, ID, password);
 
-      const data = await response.json();
-
-      if (response.status === 200) {
+      if (status === 200) {
         await SecureStore.setItemAsync("user_id", ID);
         navigation.navigate("HomeScreen");
-      } else if (response.status === 404) {
+      } else if (status === 404) {
         Alert.alert("Wrong id", data.message || "Please check your id");
-      } else if (response.status === 401) {
+      } else if (status === 401) {
         Alert.alert(
           "Wrong password",
           data.message || "Please check your password"
         );
       }
     } catch (error) {
-      Alert.alert("Network Error", "Unable to connect to the server");
-      console.error(error.message);
+      Alert.alert("Network Error", error.message);
     }
   };
 
