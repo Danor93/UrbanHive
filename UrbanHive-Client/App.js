@@ -13,6 +13,7 @@ import CommunityMembersScreen from "./screens/CommunityMembers";
 import CommunityPublishPost from "./screens/CommunityPublishPost";
 import CommunityCreateEvent from "./screens/CommunityCreateEvent";
 import CommunityJoinEventScreen from "./screens/CommunityJoinEvenet";
+import CommunityManagerScreen from "./screens/CommunityManagerScreen";
 import HomeScreen from "./screens/HomeScreen";
 import FriendList from "./screens/FriendList";
 import MyRequestsScreen from "./screens/MyRequestScreen";
@@ -104,6 +105,11 @@ export default function App() {
             <Stack.Screen
               name="CommunityJoinEventScreen"
               component={CommunityJoinEventScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CommunityManagerScreen"
+              component={CommunityManagerScreen}
               options={{ headerShown: false }}
             />
           </Stack.Navigator>

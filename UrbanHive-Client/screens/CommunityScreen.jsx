@@ -42,8 +42,12 @@ const CommunityScreen = ({ navigation, route }) => {
   const fetchData = async () => {
     try {
       const data = await fetchCommunityDetails(serverIP, communityName);
-      data.posts.sort((a, b) => new Date(a.post_date) - new Date(b.post_date));
-      setCommunityDetails(data);
+      if (data.posts) {
+        data.posts.sort(
+          (a, b) => new Date(a.post_date) - new Date(b.post_date)
+        );
+        setCommunityDetails(data);
+      }
     } catch (error) {
       console.error(error);
     }

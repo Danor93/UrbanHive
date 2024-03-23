@@ -116,7 +116,7 @@ const FriendList = () => {
             onChangeText={setReceiverId}
             style={styles.input}
           />
-          <Button title="Submit" onPress={handleAddFriend} />
+          <Button title="Submit" onPress={addFriend} />
         </View>
       </Modal>
     </View>
