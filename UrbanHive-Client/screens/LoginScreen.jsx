@@ -28,7 +28,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       const { status, data } = await loginUser(serverIP, ID, password);
 
-      if (status === 200) {
+      if (status === "success") {
         await SecureStore.setItemAsync("user_id", ID);
         navigation.navigate("HomeScreen");
       } else if (status === 404) {

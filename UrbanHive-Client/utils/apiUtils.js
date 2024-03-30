@@ -20,7 +20,6 @@ export const loginUser = async (serverIP, ID, password) => {
     switch (response.status) {
       case 200:
         // Successful login
-        alert("Login successful!");
         return { status: "success", data: data };
       case 400:
         // Bad Request - Missing ID or Password
@@ -68,7 +67,6 @@ export const createAccountWithLocation = async (serverIP, accountData) => {
     switch (response.status) {
       case 201:
         // User added successfully
-        alert("Account created successfully.");
         return data; // Return the response data for further processing
       case 400:
         // Bad request, such as missing fields or invalid data types
@@ -770,5 +768,166 @@ export const respondToJoinCommunityRequest = async (
       "An unexpected error occurred while trying to respond to the join request. Please try again."
     ); // General error feedback
     throw error; // Allow further handling by re-throwing the error
+  }
+};
+
+export const fetchNightWatchesByCommunity = async (serverIP, communityName) => {
+  try {
+    const response = await fetch(`${serverIP}/night_watch/by_community`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ community_name: communityName }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+      // Check for the specific message indicating no future night watches
+      if (
+        data.message &&
+        data.message.includes(
+          "No future night watches found for this community"
+        )
+      ) {
+        alert("No Future Night Watches");
+        return data;
+      }
+      return data;
+    } else {
+      // Handle non-200 responses with specific messages
+      let alertMessage = "Something went wrong. Please try again.";
+      switch (response.status) {
+        case 400:
+          alertMessage =
+            "Missing 'community_name' in request. Please provide a community name.";
+          break;
+        case 404:
+          alertMessage =
+            "Community not found. Please check the community name and try again.";
+          break;
+        default:
+          alertMessage =
+            data.error || "An error occurred. Please try again later.";
+      }
+
+      alert(alertMessage);
+      throw new Error(alertMessage); // Throw an error to stop the execution and log it
+    }
+  } catch (error) {
+    // If fetching fails due to network issues or JSON parsing fails
+    console.error("Error fetching night watches:", error.message);
+    alert(
+      "Unable to connect to the server. Please check your internet connection and try again."
+    );
+    throw error; // Re-throw the error to be handled by the calling function
+  }
+};
+
+export const joinNightWatch = async (serverIP, candidateId, nightWatchId) => {
+  try {
+    const response = await fetch(`${serverIP}/night_watch/join_watch`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        candidate_id: candidateId,
+        night_watch_id: nightWatchId,
+      }),
+    });
+
+    const data = await response.json(); // Attempt to parse the response
+
+    // Handle response status codes appropriately
+    if (response.ok) {
+      // If the request was successful
+      return { success: true, message: data.message };
+    } else {
+      // Handle non-success responses
+      return { success: false, error: data.error };
+    }
+  } catch (error) {
+    // Handle network errors or issues with the request
+    console.error("Network or other error:", error.message);
+    return { success: false, error: "Network or other error occurred." };
+  }
+};
+
+export const createNewNightWatch = async (serverIP, nightWatchData) => {
+  const url = `${serverIP}/night_watch/add_night_watch`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(nightWatchData),
+    });
+    const data = await response.json();
+    // Handle different status codes as per the Flask API
+    switch (response.status) {
+      case 200:
+        // Success case
+        return data.message;
+      case 400:
+        // Missing required fields
+        alert("Error: Missing required fields.");
+        break;
+      case 404:
+        // Initiator not found or not a member of the community
+        alert("Error: " + data.error);
+        break;
+      case 409:
+        // A night watch is already scheduled for this area and date or duplicate watch ID
+        alert("Error: " + data.error);
+        break;
+      case 500:
+        // Database error
+        alert("Error: Database error.");
+        break;
+      default:
+        // Other unexpected statuses
+        alert("Error: An unexpected error occurred.");
+        break;
+    }
+  } catch (error) {
+    console.error("Fetch error: ", error);
+    alert("Error: Failed to communicate with the server.");
+  }
+};
+
+export const closeNightWatch = async (serverIP, watchId) => {
+  const url = `${serverIP}/night_watch/close_night_watch`;
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ watch_id: watchId }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      // Custom error messages based on the status code
+      switch (response.status) {
+        case 400:
+          throw new Error(data.error || "Missing watch_id field.");
+        case 404:
+          throw new Error(data.error || "Night watch not found.");
+        default:
+          throw new Error(
+            data.error ||
+              "Failed to close night watch due to an unexpected error."
+          );
+      }
+    }
+
+    return data; // Successfully closed the night watch
+  } catch (error) {
+    console.error("Error closing night watch:", error.message);
+    throw error; // Re-throw the error to be handled or displayed by the caller
   }
 };

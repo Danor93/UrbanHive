@@ -277,7 +277,14 @@ const CommunityScreen = ({ navigation, route }) => {
             />
             <Text style={styles.buttonText}>Publish Post</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("CommunityNightWatch", {
+                communityName: communityName,
+              });
+            }}
+            style={styles.button}
+          >
             <Ionicons
               name="moon"
               size={20}
