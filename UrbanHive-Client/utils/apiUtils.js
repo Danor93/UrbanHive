@@ -143,8 +143,6 @@ export const addFriend = async (serverIP, senderId, receiverId) => {
       throw new Error(errorMessage); // Throwing an error after alerting to stop execution
     }
 
-    // If the friend request is sent successfully
-    alert("Friend added successfully");
     return "Friend added successfully";
   } catch (error) {
     console.error("Error adding friend:", error);
@@ -184,10 +182,8 @@ export const respondToFriendRequest = async (
       throw new Error(errorData.error || "Failed to send response"); // Throw to exit after handling
     }
 
-    // Assuming the API returns a success message or the updated requests list
     const responseData = await fetchResponse.json();
-    alert("Response to friend request processed successfully."); // Success alert
-    return responseData; // You can adjust this return value based on your specific API response structure
+    return responseData;
   } catch (error) {
     console.error("Error responding to friend request:", error);
     alert(

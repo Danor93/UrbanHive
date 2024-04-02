@@ -14,7 +14,7 @@ import { useUser } from "../contexts/UserContext";
 import { respondToFriendRequest } from "../utils/apiUtils";
 
 const MyRequestsScreen = ({ navigation }) => {
-  const { user } = useUser();
+  const { user, removeUserRequest } = useUser();
   const serverIP = useServerIP();
   const [requests, setRequests] = useState(user ? user.requests : []);
 
@@ -25,10 +25,17 @@ const MyRequestsScreen = ({ navigation }) => {
 
   const handleResponse = async (senderId, response) => {
     try {
-      await respondToFriendRequest(serverIP, user.id, senderId, response);
-
-      Alert.alert("Success", "Response sent successfully");
-      setRequests(requests.filter((req) => req.sender_id !== senderId));
+      const response = await respondToFriendRequest(
+        serverIP,
+        user.id,
+        senderId,
+        response
+      );
+      if (response.ok) {
+        Alert.alert("Success", "Response sent successfully");
+        setRequests(requests.filter((req) => req.id !== senderId));
+        removeUserRequest(senderId);
+      }
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -52,13 +59,13 @@ const MyRequestsScreen = ({ navigation }) => {
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, styles.acceptButton]}
-          onPress={() => handleResponse(item.sender_id, 1)}
+          onPress={() => handleResponse(item.id, 1)}
         >
           <Text style={styles.buttonText}>Accept</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.declineButton]}
-          onPress={() => handleResponse(item.sender_id, 0)}
+          onPress={() => handleResponse(item.id, 0)}
         >
           <Text style={styles.buttonText}>Decline</Text>
         </TouchableOpacity>
@@ -91,7 +98,7 @@ const styles = StyleSheet.create({
   item: {
     backgroundColor: "#ffffff",
     padding: 20,
-    marginVertical: 8,
+    marginVertical: 40,
     marginHorizontal: 16,
     borderRadius: 10,
   },

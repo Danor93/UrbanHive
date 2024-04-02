@@ -18,6 +18,13 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
+  const removeUserRequest = (senderId) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      requests: prevUser.requests.filter((req) => req.id !== senderId),
+    }));
+  };
+
   const logout = async () => {
     setUser(null);
     await SecureStore.deleteItemAsync("user_id");
@@ -25,7 +32,13 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, SaveUser, updateUserCommunities, logout }}
+      value={{
+        user,
+        SaveUser,
+        updateUserCommunities,
+        removeUserRequest,
+        logout,
+      }}
     >
       {children}
     </UserContext.Provider>

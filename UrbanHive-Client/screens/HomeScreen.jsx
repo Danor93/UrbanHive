@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "white",
     fontFamily: "EncodeSansExpanded-Bold",
-    marginTop: 15,
+    marginTop: 40,
   },
   menu: {
     flex: 1,

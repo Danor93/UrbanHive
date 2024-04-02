@@ -164,36 +164,55 @@ const CommunityLobby = ({ navigation }) => {
               <FlatList
                 data={displayedCommunities}
                 keyExtractor={(item, index) => `community-${index}`}
-                renderItem={({ item }) => (
-                  <View style={styles.communityContainer}>
-                    <Text style={styles.searchCommunityName}>{item.area}</Text>
-                    <TouchableOpacity
-                      style={styles.joinButton}
-                      onPress={() => {
-                        const area = item.area;
-                        const senderId = user.id;
-                        const senderName = user.name;
-                        requestToJoinCommunity(
-                          serverIP,
-                          area,
-                          senderId,
-                          senderName
-                        )
-                          .then((response) => {
-                            Alert.alert(
-                              "Request Sent",
-                              "Your request to join has been sent."
-                            );
-                          })
-                          .catch((error) => {
-                            Alert.alert("Error", error.message);
-                          });
-                      }}
-                    >
-                      <Text style={styles.joinButtonText}>Request to Join</Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
+                renderItem={({ item }) => {
+                  // Assuming user.communities contains a list of community names the user has joined
+                  // This needs to be adapted based on the actual structure of the user object and communities list
+                  const isJoined = user.communities.includes(item.area);
+
+                  return (
+                    <View style={styles.communityContainer}>
+                      <Text style={styles.searchCommunityName}>
+                        {item.area}
+                      </Text>
+                      {isJoined ? (
+                        <TouchableOpacity
+                          style={styles.joinButtonDisabled}
+                          disabled={true}
+                        >
+                          <Text style={styles.joinButtonText}>Joined</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity
+                          style={styles.joinButton}
+                          onPress={() => {
+                            const area = item.area;
+                            const senderId = user.id;
+                            const senderName = user.name;
+                            requestToJoinCommunity(
+                              serverIP,
+                              area,
+                              senderId,
+                              senderName
+                            )
+                              .then((response) => {
+                                Alert.alert(
+                                  "Request Sent",
+                                  "Your request to join has been sent."
+                                );
+                              })
+                              .catch((error) => {
+                                Alert.alert("Error", error.message);
+                              });
+                          }}
+                        >
+                          <Text style={styles.joinButtonText}>
+                            Request to Join
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  );
+                }}
               />
             )}
           </View>
@@ -399,6 +418,11 @@ const styles = StyleSheet.create({
     color: "black",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  joinButtonDisabled: {
+    backgroundColor: "grey",
+    borderRadius: 5,
+    padding: 10,
   },
 });
 

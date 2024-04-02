@@ -10,6 +10,7 @@ import {
   Text,
   Image,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import * as SecureStore from "expo-secure-store";
@@ -34,13 +35,14 @@ const FriendList = () => {
   const getUserFriend = async () => {
     try {
       setFriends(user.friends || []);
+      console.log("friend list:", user.friends);
       setIsLoading(false);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
   };
 
-  const addFriend = async () => {
+  const addFriendHandler = async () => {
     try {
       const userId = await SecureStore.getItemAsync("user_id");
       const successMessage = await addFriend(serverIP, userId, receiverId);
@@ -88,8 +90,8 @@ const FriendList = () => {
                   {/* Check if item.location and item.location.address exist before displaying */}
                   <Text style={styles.friendLocation}>
                     Location:{" "}
-                    {item.location && item.location.address
-                      ? item.location.address
+                    {item["friend location"] && item["friend location"].address
+                      ? item["friend location"].address
                       : "Address not available"}
                   </Text>
                 </View>
@@ -97,11 +99,12 @@ const FriendList = () => {
             )}
           />
         )}
-        <Button
-          style={styles.addFriendButton}
-          title="Add a friend"
+        <TouchableOpacity
           onPress={() => setModalVisible(true)}
-        />
+          style={styles.addFriendButton}
+        >
+          <Text style={styles.buttonText}>Add a friend</Text>
+        </TouchableOpacity>
       </LinearGradient>
       <Modal
         animationType="slide"
@@ -116,7 +119,7 @@ const FriendList = () => {
             onChangeText={setReceiverId}
             style={styles.input}
           />
-          <Button title="Submit" onPress={addFriend} />
+          <Button title="Submit" onPress={addFriendHandler} />
         </View>
       </Modal>
     </View>
@@ -165,16 +168,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FD844D",
     padding: 10,
     borderRadius: 20,
-    position: "absolute",
-    bottom: 20,
-    left: 20,
-    width: "50%",
+    alignSelf: "center",
+    width: "70%",
+    marginTop: 20,
+  },
+  buttonText: {
+    fontFamily: "EncodeSansExpanded-Bold",
+    textAlign: "center",
+    color: "white",
+    fontSize: 18,
   },
   friendItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff", // Change this as needed
-    borderRadius: 10,
+    backgroundColor: "#fff",
+    borderRadius: 20,
     marginBottom: 10,
     padding: 10,
     shadowColor: "#000",
@@ -184,14 +192,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   profileImage: {
-    width: 50, // Adjust size as needed
-    height: 50, // Adjust size as needed
-    borderRadius: 25, // Make it round
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     marginRight: 10,
   },
   friendName: {
-    fontFamily: "EncodeSansExpanded-Bold", // Make sure this font is linked in your project
-    fontSize: 16, // Adjust size as needed
+    fontFamily: "EncodeSansExpanded-Bold",
+    fontSize: 16,
   },
   friendLocation: {
     fontFamily: "EncodeSansExpanded-Bold",
