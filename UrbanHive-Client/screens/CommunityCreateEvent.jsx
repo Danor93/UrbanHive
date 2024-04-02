@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
   scrollView: {
     padding: 20,
     paddingBottom: 200,
+    marginTop: 40,
   },
   datePickerContainer: {
     backgroundColor: "white",

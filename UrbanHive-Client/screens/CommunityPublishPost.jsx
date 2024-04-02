@@ -63,6 +63,7 @@ const styles = {
   },
   inputContainer: {
     marginVertical: 20,
+    marginTop: 40,
   },
   label: {
     fontSize: 20,
