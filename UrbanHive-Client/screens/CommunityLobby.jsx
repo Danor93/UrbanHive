@@ -46,7 +46,7 @@ const CommunityLobby = ({ navigation }) => {
   }, [serverIP]);
 
   const navigateToCommunity = (communityName) => {
-    navigation.navigate("CommunityScreen", { communityName });
+    navigation.navigate("CommunityHubScreen", { communityName });
   };
 
   // Function to determine which action to perform when the modal's confirm button is pressed

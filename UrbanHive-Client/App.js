@@ -7,7 +7,7 @@ import CreateAccountScreen from "./screens/CreateAccountScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
-import CommunityScreen from "./screens/CommunityScreen";
+import CommunityHubScreen from "./screens/CommunityHubScreen";
 import CommunityLobby from "./screens/CommunityLobby";
 import CommunityMembersScreen from "./screens/CommunityMembers";
 import CommunityPublishPost from "./screens/CommunityPublishPost";
@@ -69,8 +69,8 @@ export default function App() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="CommunityScreen"
-              component={CommunityScreen}
+              name="CommunityHubScreen"
+              component={CommunityHubScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
