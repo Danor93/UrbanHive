@@ -11,9 +11,13 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import DatePicker from "react-native-date-picker";
+
+// Import context hooks for accessing server IP and user data
 import { useServerIP } from "../contexts/ServerIPContext";
 import { useUser } from "../contexts/UserContext";
 import { Ionicons } from "@expo/vector-icons";
+
+// Import utility functions for API calls related to community management
 import {
   fetchCommunityDetails,
   respondToJoinCommunityRequest,
@@ -22,6 +26,7 @@ import {
   closeNightWatch,
 } from "../utils/apiUtils";
 
+// Component to manage community-related activities
 const CommunityManagerScreen = ({ route }) => {
   const { communityName } = route.params;
   const [joinRequests, setJoinRequests] = useState([]);
@@ -34,6 +39,7 @@ const CommunityManagerScreen = ({ route }) => {
   const [nightWatches, setNightWatches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // useEffect hook for Loading data on component mount
   useEffect(() => {
     setIsLoading(true); // Start loading
     Promise.all([
@@ -41,6 +47,7 @@ const CommunityManagerScreen = ({ route }) => {
       fetchNightWatchesByCommunity(serverIP, communityName),
     ])
       .then(([communityDetails, nightWatchesData]) => {
+        // Setting join requests and night watches from the fetched data
         if (communityDetails.join_request) {
           setJoinRequests([communityDetails.join_request]);
         } else {
@@ -60,13 +67,13 @@ const CommunityManagerScreen = ({ route }) => {
       });
   }, [serverIP, communityName]);
 
-  // Function to handle form submission
+  // Function to create a new night watch
   const handleCreateNightWatch = () => {
     // Validate inputs if necessary
     const newNightWatch = {
       initiator_id: user.id,
       community_area: communityName,
-      watch_date: watchDate.toISOString().split("T")[0], // Format the date as YYYY-MM-DD
+      watch_date: watchDate.toISOString().split("T")[0], // Only date needed
       watch_radius: watchRadius,
       positions_amount: positionsAmount,
     };
@@ -82,6 +89,7 @@ const CommunityManagerScreen = ({ route }) => {
       });
   };
 
+  // Function to close an active night watch
   const closeNightWatchHandler = (watchId) => {
     closeNightWatch(serverIP, watchId)
       .then((response) => {
@@ -95,6 +103,7 @@ const CommunityManagerScreen = ({ route }) => {
       });
   };
 
+  // Function to handle join requests to the community
   const handleResponse = (requestId, response) => {
     respondToJoinCommunityRequest(serverIP, requestId, response)
       .then(() => {
@@ -118,6 +127,7 @@ const CommunityManagerScreen = ({ route }) => {
       });
   };
 
+  // Component rendering including Modal for creating night watches and respond the community request
   return (
     <LinearGradient
       colors={["#0f0f0f", "#05403e", "#03af68"]}
@@ -189,6 +199,7 @@ const CommunityManagerScreen = ({ route }) => {
         {communityName} Night Watches:
       </Text>
 
+      {/* Render Night Watches events */}
       <FlatList
         data={nightWatches}
         keyExtractor={(item, index) => `nightWatch-${index}`}
@@ -303,6 +314,7 @@ const CommunityManagerScreen = ({ route }) => {
         )}
       />
 
+      {/* Render Requests to join the community */}
       {joinRequests.length > 0 && (
         <>
           <Text style={styles.title}>Requests to join {communityName}:</Text>
@@ -335,6 +347,7 @@ const CommunityManagerScreen = ({ route }) => {
   );
 };
 
+// StyleSheet for component styling
 const styles = StyleSheet.create({
   container: {
     flex: 1,

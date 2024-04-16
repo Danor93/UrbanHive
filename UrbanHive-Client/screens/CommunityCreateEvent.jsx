@@ -11,22 +11,29 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
+// Imports custom hooks for accessing user and server context.
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+// Imports utility function to handle event creation API calls.
 import { createEvent } from "../utils/apiUtils";
 
+// Main component for creating community events.
 const CommunityCreateEvent = ({ navigation, route }) => {
+  // Context hooks to access user data and server IP.
   const { user } = useUser();
   const serverIP = useServerIP();
   const { communityName } = route.params;
 
+  // Local state management for event creation form.
   const [eventName, setEventName] = useState("");
   const [eventType, setEventType] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [guestList, setGuestList] = useState([""]); // Start with one empty input
 
+  // Function to handle the creation of an event, interacting with backend via API.
   const handleCreateEvent = async () => {
+    // Filters out empty guest IDs from the guest list.
     const filteredGuestList = guestList.filter(
       (guestId) => guestId.trim() !== ""
     );
@@ -44,23 +51,26 @@ const CommunityCreateEvent = ({ navigation, route }) => {
     try {
       const data = await createEvent(serverIP, eventDetails);
       Alert.alert("Success", "Event created successfully");
-      navigation.goBack();
+      navigation.goBack(); // Navigates back to the previous screen upon successful creation.
     } catch (error) {
       console.error("Error:", error);
       Alert.alert("Error", "An error occurred while creating event");
     }
   };
 
+  // Function to dynamically handle changes to the guest list.
   const handleGuestChange = (text, index) => {
     const newGuestList = [...guestList];
     newGuestList[index] = text;
     setGuestList(newGuestList);
   };
 
+  // Function to add a new input field for adding more guests.
   const addGuestInput = () => {
     setGuestList([...guestList, ""]); // Add another empty input
   };
 
+  // Component UI structured with a gradient background, scrollable view, and input fields for event details.
   return (
     <LinearGradient
       colors={["#7168DF", "#4587AF", "#0DB572"]}
@@ -139,6 +149,7 @@ const CommunityCreateEvent = ({ navigation, route }) => {
   );
 };
 
+// StyleSheet to style various components of the screen.
 const styles = StyleSheet.create({
   container: {
     flex: 1,

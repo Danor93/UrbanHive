@@ -11,8 +11,12 @@ import {
   Dimensions,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+
+// Import custom hooks for accessing user data and server IP
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+
+// Import API utility functions for community-related actions
 import {
   createCommunity,
   findCommunitiesByRadiusAndLocation,
@@ -20,8 +24,10 @@ import {
   requestToJoinCommunity,
 } from "../utils/apiUtils";
 
+// Get dimensions of the device screen
 const { width, height } = Dimensions.get("window");
 
+// Main component for managing community interactions
 const CommunityLobby = ({ navigation }) => {
   const { user, updateUserCommunities } = useUser();
   const [modalVisible, setModalVisible] = useState(false);
@@ -31,6 +37,7 @@ const CommunityLobby = ({ navigation }) => {
   const [action, setAction] = useState("");
   const serverIP = useServerIP();
 
+  // useEffect to fetch all communities from the server on component mount
   useEffect(() => {
     // Call the function to fetch all communities when the component mounts
     const loadCommunities = async () => {
@@ -45,6 +52,7 @@ const CommunityLobby = ({ navigation }) => {
     loadCommunities();
   }, [serverIP]);
 
+  // Navigation function to the community hub
   const navigateToCommunity = (communityName) => {
     navigation.navigate("CommunityHubScreen", { communityName });
   };
@@ -62,6 +70,7 @@ const CommunityLobby = ({ navigation }) => {
     }
   };
 
+  // Function to handle the creation of a new community
   const handleCreateCommunity = async () => {
     try {
       const data = await createCommunity(
@@ -87,6 +96,7 @@ const CommunityLobby = ({ navigation }) => {
     setModalVisible(false);
   };
 
+  // Function to find communities within a certain radius
   const handleFindCommunityByRadius = async () => {
     try {
       const data = await findCommunitiesByRadiusAndLocation(
@@ -99,9 +109,10 @@ const CommunityLobby = ({ navigation }) => {
     } catch (error) {
       Alert.alert("Error", error.message);
     }
-    setModalVisible(true); // Ensure the modal is shown after fetching
+    setModalVisible(true);
   };
 
+  // Function to search for communities by name
   const handleSearch = () => {
     if (action === "findName" && communities) {
       const filteredCommunities = communities.filter((community) =>
@@ -113,6 +124,7 @@ const CommunityLobby = ({ navigation }) => {
     }
   };
 
+  // Function to close the modal and reset relevant states
   const handleCloseModal = () => {
     setModalVisible(false);
     setAction(""); // Reset action state
@@ -120,6 +132,7 @@ const CommunityLobby = ({ navigation }) => {
     setInputValue(""); // Reset the input field
   };
 
+  // Main component render
   return (
     <LinearGradient
       colors={["#0f0f0f", "#05403e", "#03af68"]}
@@ -160,20 +173,19 @@ const CommunityLobby = ({ navigation }) => {
                   : "Search"}
               </Text>
             </TouchableOpacity>
+            {/* Conditional rendering of communities list based on search or radius find */}
             {(action === "findName" || action === "findRadius") && (
               <FlatList
                 data={displayedCommunities}
                 keyExtractor={(item, index) => `community-${index}`}
                 renderItem={({ item }) => {
-                  // Assuming user.communities contains a list of community names the user has joined
-                  // This needs to be adapted based on the actual structure of the user object and communities list
                   const isJoined = user.communities.includes(item.area);
-
                   return (
                     <View style={styles.communityContainer}>
                       <Text style={styles.searchCommunityName}>
                         {item.area}
                       </Text>
+                      {/* Display join button only if user hasn't already joined */}
                       {isJoined ? (
                         <TouchableOpacity
                           style={styles.joinButtonDisabled}
@@ -218,6 +230,7 @@ const CommunityLobby = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+      {/* Buttons for creating and finding communities */}
       <TouchableOpacity
         style={styles.button}
         onPress={() => {
@@ -246,6 +259,7 @@ const CommunityLobby = ({ navigation }) => {
         <Text style={styles.buttonText}>Find Community by Name</Text>
       </TouchableOpacity>
 
+      {/* Displaying user's communities if its not empty */}
       {communities && communities.length > 0 && (
         <>
           <Text style={styles.titleText}>Your Communities:</Text>
@@ -281,6 +295,7 @@ const CommunityLobby = ({ navigation }) => {
   );
 };
 
+// StyleSheet for styling the components
 const styles = StyleSheet.create({
   container: {
     flex: 1,

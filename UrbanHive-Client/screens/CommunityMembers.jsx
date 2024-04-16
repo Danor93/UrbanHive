@@ -11,12 +11,17 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+
+// Import context hooks for accessing server and user data
 import { useServerIP } from "../contexts/ServerIPContext";
 import { useUser } from "../contexts/UserContext";
+
+// Import API function to fetch community members
 import { fetchCommunityMembers } from "../utils/apiUtils";
 
+// Main component for displaying community members
 const CommunityMembersScreen = ({ route }) => {
-  const { communityName } = route.params;
+  const { communityName } = route.params; // Destructuring to get community name passed in route parameters
   const { user } = useUser();
   const serverIP = useServerIP();
   const [members, setMembers] = useState([]);
@@ -24,10 +29,11 @@ const CommunityMembersScreen = ({ route }) => {
     useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
+  // useEffect hook to fetch community members from the server
   useEffect(() => {
     fetchCommunityMembers(serverIP, communityName)
       .then((fetchedMembers) => {
-        // Filter out the current user from the list of members
+        // Filtering out the current user from the members list
         const filteredMembers = fetchedMembers.filter(
           (member) => member.id !== user.id
         );
@@ -36,12 +42,13 @@ const CommunityMembersScreen = ({ route }) => {
       .catch((error) => console.error(error));
   }, [communityName, serverIP, user.id]);
 
+  // Function to render each member in a list
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.memberContainer}
       onPress={() => {
-        setSelectedMemberPhoneNumber(item.phoneNumber);
-        setModalVisible(true);
+        setSelectedMemberPhoneNumber(item.phoneNumber); // Set phone number for modal
+        setModalVisible(true); // Show modal to initiate chat
       }}
     >
       <Image
@@ -90,6 +97,7 @@ const CommunityMembersScreen = ({ route }) => {
                 )}`;
                 const whatsappUrl = `whatsapp://send?phone=${phoneNumberWithPrefix}`;
 
+                // Attempt to open WhatsApp chat using Linking
                 Linking.canOpenURL(whatsappUrl)
                   .then((supported) => {
                     if (!supported) {
@@ -110,6 +118,7 @@ const CommunityMembersScreen = ({ route }) => {
   );
 };
 
+// Styles for the component
 const styles = {
   container: {
     flex: 1,

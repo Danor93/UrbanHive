@@ -7,15 +7,24 @@ import {
   TouchableOpacity,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+
+// Importing context hooks for user data and server configuration.
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+
+// API utility imports for event handling.
 import { joinEvent } from "../utils/apiUtils";
 
+// Component for users to join events within their community.
 const CommunityJoinEventScreen = ({ route }) => {
+  // State for storing list of events.
   const [events, setEvents] = useState([]);
+
+  // Context hooks to access user data and server IP.
   const { user } = useUser();
   const serverIP = useServerIP();
 
+  // useEffect hook to fetch and filter events on component mount and when dependencies change.
   useEffect(() => {
     const fetchAndFilterEvents = async () => {
       try {
@@ -40,8 +49,10 @@ const CommunityJoinEventScreen = ({ route }) => {
     fetchAndFilterEvents();
   }, [route.params.communityName, serverIP]);
 
+  // Function to handle joining an event.
   const handleJoinEvent = async (eventItem) => {
     try {
+      // API call to join the event.
       await joinEvent(
         serverIP,
         user.id,
@@ -58,11 +69,13 @@ const CommunityJoinEventScreen = ({ route }) => {
     }
   };
 
+  // Function to format ISO date strings to local date and time format.
   const formatDateTime = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleString();
   };
 
+  // Component rendering a list of joinable community events.
   return (
     <LinearGradient
       colors={["#7168DF", "#4587AF", "#0DB572"]}
@@ -100,6 +113,7 @@ const CommunityJoinEventScreen = ({ route }) => {
   );
 };
 
+// Styling for the component using StyleSheet.
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -12,8 +12,10 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+// Importing context hooks for accessing user and server information.
 import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
+// Importing utility functions for API calls regarding community interactions.
 import {
   fetchCommunityDetails,
   postComment,
@@ -21,10 +23,13 @@ import {
   deleteComment,
 } from "../utils/apiUtils";
 
+// Main component definition for displaying and managing a community screen.
 const CommunityScreen = ({ navigation, route }) => {
   const { communityName } = route.params;
   const { user } = useUser();
   const serverIP = useServerIP();
+
+  // State hooks to manage community details, comment texts, and refresh control.
   const [communityDetails, setCommunityDetails] = useState(null);
   const [commentTexts, setCommentTexts] = useState({});
   const [refreshing, setRefreshing] = useState(false);
@@ -38,7 +43,7 @@ const CommunityScreen = ({ navigation, route }) => {
     { id: "5", name: "Pedro Fernandes" },
   ];
 
-  // Adjusted fetchData to use the utility function
+  // Function to fetch community details from the server and manage the state.
   const fetchData = async () => {
     try {
       const data = await fetchCommunityDetails(serverIP, communityName);
@@ -57,12 +62,13 @@ const CommunityScreen = ({ navigation, route }) => {
     fetchData();
   }, []);
 
+  // Function to refresh the community data while the user pulls the upper screen down.
   const onRefresh = () => {
     setRefreshing(true);
     fetchData().then(() => setRefreshing(false));
   };
 
-  // Handle posting a comment
+  // Function to post a comment using API call
   const handlePostComment = async (postId) => {
     if (!commentTexts[postId]) return; // Don't post empty comments
 
@@ -83,7 +89,7 @@ const CommunityScreen = ({ navigation, route }) => {
     }
   };
 
-  // Handle deleting a post
+  // Function to delete a post using API call.
   const handleDeletePost = async (postId) => {
     try {
       await deletePost(serverIP, postId);
@@ -99,7 +105,7 @@ const CommunityScreen = ({ navigation, route }) => {
     }
   };
 
-  // Handle deleting a comment
+  // Function to delete a comment using API call.
   const handleDeleteComment = async (postId, commentId) => {
     const deleteData = {
       post_id: postId,
@@ -130,6 +136,7 @@ const CommunityScreen = ({ navigation, route }) => {
     }
   };
 
+  // Function to render each post in the community.
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
       {item.user_id === user.id && (
@@ -162,6 +169,7 @@ const CommunityScreen = ({ navigation, route }) => {
     </View>
   );
 
+  // Function to render each comment in a post.
   const renderComment = (comment, postId) => (
     <View key={comment.comment_id} style={styles.commentContainer}>
       <View style={styles.commentTextContainer}>
@@ -179,6 +187,7 @@ const CommunityScreen = ({ navigation, route }) => {
     </View>
   );
 
+  // Function to render each online member.
   const renderMember = (member) => (
     <View style={styles.memberItem} key={member.id}>
       <Ionicons name="person-circle" size={40} color="white" />
@@ -186,6 +195,7 @@ const CommunityScreen = ({ navigation, route }) => {
     </View>
   );
 
+  // Main component return structure with layout and styles.
   return (
     <LinearGradient
       colors={["#7168DF", "#4587AF", "#0DB572"]}
@@ -212,6 +222,7 @@ const CommunityScreen = ({ navigation, route }) => {
           <Text style={styles.locationText}>{user.location.address}</Text>
         </View>
 
+        {/* Community Hub Buttons list*/}
         <View style={styles.buttonsContainer}>
           <TouchableOpacity
             onPress={() => {
@@ -325,6 +336,7 @@ const CommunityScreen = ({ navigation, route }) => {
   );
 };
 
+// StyleSheet to style various components of the screen.
 const styles = StyleSheet.create({
   container: {
     flex: 1,
