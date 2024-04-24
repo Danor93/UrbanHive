@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import DatePicker from "react-native-date-picker";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 // Import context hooks for accessing server IP and user data
 import { useServerIP } from "../contexts/ServerIPContext";
@@ -33,11 +34,15 @@ const CommunityManagerScreen = ({ route }) => {
   const serverIP = useServerIP();
   const { user } = useUser();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [isMapModalVisible, setMapModalVisible] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [watchDate, setWatchDate] = useState(new Date());
   const [watchRadius, setWatchRadius] = useState("");
   const [positionsAmount, setPositionsAmount] = useState("");
   const [nightWatches, setNightWatches] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  // Get user's current location
+  const userLocation = user.location;
 
   // useEffect hook for Loading data on component mount
   useEffect(() => {
@@ -67,6 +72,20 @@ const CommunityManagerScreen = ({ route }) => {
       });
   }, [serverIP, communityName]);
 
+  const openMapModal = () => {
+    setMapModalVisible(true);
+  };
+
+  const closeMapModal = () => {
+    setMapModalVisible(false);
+  };
+
+  const onMapPress = (event) => {
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setSelectedLocation({ latitude, longitude });
+    closeMapModal();
+  };
+
   // Function to create a new night watch
   const handleCreateNightWatch = () => {
     // Validate inputs if necessary
@@ -76,6 +95,8 @@ const CommunityManagerScreen = ({ route }) => {
       watch_date: watchDate.toISOString().split("T")[0], // Only date needed
       watch_radius: watchRadius,
       positions_amount: positionsAmount,
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude,
     };
     createNewNightWatch(serverIP, newNightWatch)
       .then((response) => {
@@ -143,6 +164,10 @@ const CommunityManagerScreen = ({ route }) => {
         <Text style={styles.openButtonText}>Open a New Night Watch</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity onPress={openMapModal} style={styles.openButton}>
+        <Text style={styles.openButtonText}>Choose Location on Map</Text>
+      </TouchableOpacity>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -185,6 +210,16 @@ const CommunityManagerScreen = ({ route }) => {
               keyboardType="numeric"
               style={styles.textInput}
             />
+
+            <TouchableOpacity
+              onPress={openMapModal}
+              style={styles.openMapButton}
+            >
+              <Text style={styles.openMapButtonText}>
+                Choose Location on Map
+              </Text>
+            </TouchableOpacity>
+
             <TouchableOpacity
               onPress={handleCreateNightWatch}
               style={styles.createButton}
@@ -192,6 +227,37 @@ const CommunityManagerScreen = ({ route }) => {
               <Text style={styles.createButtonText}>Create</Text>
             </TouchableOpacity>
           </View>
+        </View>
+      </Modal>
+
+      {/* Map Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isMapModalVisible}
+        onRequestClose={closeMapModal}
+      >
+        <View style={styles.mapModalView}>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            onPress={onMapPress}
+            provider={PROVIDER_GOOGLE}
+          >
+            {selectedLocation && <Marker coordinate={selectedLocation} />}
+          </MapView>
+
+          <TouchableOpacity
+            onPress={closeMapModal}
+            style={styles.closeMapButton}
+          >
+            <Text style={styles.closeMapButtonText}>Close Map</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
 
@@ -541,6 +607,40 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginLeft: 20,
     marginBottom: 2,
+  },
+  openMapButton: {
+    backgroundColor: "#03af68",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  openMapButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  mapModalView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  map: {
+    flex: 1,
+    height: "90%",
+    width: "90%",
+  },
+  closeMapButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 20,
+  },
+  closeMapButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

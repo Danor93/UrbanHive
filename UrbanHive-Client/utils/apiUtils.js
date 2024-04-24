@@ -341,6 +341,29 @@ export const fetchCommunityMembers = async (serverIP, communityName) => {
   }
 };
 
+export const fetchAllEvents = async (serverIP) => {
+  try {
+    const response = await fetch(`${serverIP}/events/get_all_events`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    // Check for HTTP status codes that indicate errors
+    if (!response.ok) {
+      const errorMessage = `Error: ${response.status} ${response.statusText}`;
+      throw new Error(errorMessage); // Throw error with the status and message
+    }
+
+    const events = await response.json(); // Parse JSON response
+    return events; // Return the list of events
+  } catch (error) {
+    console.error("Failed to fetch all events:", error);
+    throw error; // Re-throw the error to be caught by the caller
+  }
+};
+
 // Function to create an event
 export const createEvent = async (serverIP, eventDetails) => {
   try {

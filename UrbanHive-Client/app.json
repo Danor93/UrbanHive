@@ -14,21 +14,31 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.urbanhive"
+      "bundleIdentifier": "com.urbanhive",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show the map."
+      }
     },
     "android": {
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAfT6U4cZdtM3Y8rT6cad1dpYgQvYhfuFY"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.urbanhive"
+      "package": "com.urbanhive",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "s.o.d.a",
     "extra": {
       "eas": {
-        "projectId": "457df7db-215c-430e-b61a-cf8b43ac5e64"
+        "projectId": "9c4639f2-0032-4281-96cb-84b471fbb784"
       }
     }
   }

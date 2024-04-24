@@ -13,41 +13,35 @@ import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
 
 // API utility imports for event handling.
-import { joinEvent } from "../utils/apiUtils";
+import { joinEvent, fetchAllEvents } from "../utils/apiUtils";
 
 // Component for users to join events within their community.
 const CommunityJoinEventScreen = ({ route }) => {
   // State for storing list of events.
+  const { communityName } = route.params; // Destructuring to get community name passed in route parameters
   const [events, setEvents] = useState([]);
 
   // Context hooks to access user data and server IP.
   const { user } = useUser();
   const serverIP = useServerIP();
 
-  // useEffect hook to fetch and filter events on component mount and when dependencies change.
   useEffect(() => {
     const fetchAndFilterEvents = async () => {
       try {
-        const response = await fetch(`${serverIP}/events/get_all_events`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const allEvents = await response.json();
-        const communityName = route.params.communityName;
+        const allEvents = await fetchAllEvents(serverIP); // Call the utility function to fetch events
 
         const filteredEvents = allEvents.filter(
           (event) => event.community_name === communityName
         );
-        setEvents(filteredEvents);
+        setEvents(filteredEvents); // Set the filtered events to state
       } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch events:", error);
+        Alert.alert("Error", "Failed to fetch events. Please try again later."); // Show an alert for the error
       }
     };
 
-    fetchAndFilterEvents();
-  }, [route.params.communityName, serverIP]);
+    fetchAndFilterEvents(); // Call the fetch function in useEffect
+  }, [serverIP, communityName]); // Re-run if serverIP or communityName changes
 
   // Function to handle joining an event.
   const handleJoinEvent = async (eventItem) => {

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Modal,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useServerIP } from "../contexts/ServerIPContext";
@@ -14,6 +15,7 @@ import {
   fetchNightWatchesByCommunity,
   joinNightWatch,
 } from "../utils/apiUtils";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 const CommunityNightWatch = ({ navigation, route }) => {
   const { communityName } = route.params;
@@ -21,6 +23,8 @@ const CommunityNightWatch = ({ navigation, route }) => {
   const { user } = useUser();
   const [nightWatches, setNightWatches] = useState([]);
   const [joinedWatches, setJoinedWatches] = useState([]);
+  const [isMapModalVisible, setMapModalVisible] = useState(false);
+  const [selectedWatchLocation, setSelectedWatchLocation] = useState(null);
 
   useEffect(() => {
     const fetchNightWatches = async () => {
@@ -51,7 +55,6 @@ const CommunityNightWatch = ({ navigation, route }) => {
       // Manually update the nightWatches state to reflect the join without refetching
       const updatedNightWatches = nightWatches.map((watch) => {
         if (watch.watch_id === nightWatchId) {
-          // Assuming watch_members is an array of user IDs. Adjust as needed.
           const updatedWatchMembers = [...watch.watch_members, { id: user.id }]; // Add current user as a member
           return { ...watch, watch_members: updatedWatchMembers };
         }
@@ -65,6 +68,11 @@ const CommunityNightWatch = ({ navigation, route }) => {
     }
   };
 
+  const openMapWithLocation = (location) => {
+    setSelectedWatchLocation(location); // Set the location for the map
+    setMapModalVisible(true); // Open the map modal
+  };
+
   const renderItem = ({ item }) => {
     // Check if the user has already joined this night watch
     const hasJoined = user.night_watches.some(
@@ -76,28 +84,35 @@ const CommunityNightWatch = ({ navigation, route }) => {
     const positionsDisplay = `${registeredMembersCount} / ${item.positions_amount}`;
 
     return (
-      <View style={styles.watchContainer}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.detailsText}>
-            Initiator: {item.initiator_name}
-          </Text>
-          <Text style={styles.detailsText}>Date: {item.watch_date}</Text>
-          <Text style={styles.detailsText}>Positions: {positionsDisplay}</Text>
-        </View>
-        {!hasJoined &&
-        !item.watch_members.map((member) => member.id).includes(user.id) ? (
-          <TouchableOpacity
-            style={styles.joinButton}
-            onPress={() => handleJoin(item.watch_id)}
-          >
-            <Text style={styles.joinButtonText}>Join</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.joinedButton}>
-            <Text style={styles.joinButtonText}>Joined</Text>
+      <TouchableOpacity
+        style={styles.watchContainer}
+        onPress={() => openMapWithLocation(item.location)}
+      >
+        <View style={styles.watchContainer}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.detailsText}>
+              Initiator: {item.initiator_name}
+            </Text>
+            <Text style={styles.detailsText}>Date: {item.watch_date}</Text>
+            <Text style={styles.detailsText}>
+              Positions: {positionsDisplay}
+            </Text>
           </View>
-        )}
-      </View>
+          {!hasJoined &&
+          !item.watch_members.map((member) => member.id).includes(user.id) ? (
+            <TouchableOpacity
+              style={styles.joinButton}
+              onPress={() => handleJoin(item.watch_id)}
+            >
+              <Text style={styles.joinButtonText}>Join</Text>
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.joinedButton}>
+              <Text style={styles.joinButtonText}>Joined</Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
     );
   };
 
@@ -118,6 +133,43 @@ const CommunityNightWatch = ({ navigation, route }) => {
           <Text style={styles.centerMessageText}>No night watch yet</Text>
         </View>
       )}
+
+      {/* Map Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isMapModalVisible}
+        onRequestClose={() => setMapModalVisible(false)}
+      >
+        <View style={styles.mapModalView}>
+          <MapView
+            style={styles.map}
+            initialRegion={
+              selectedWatchLocation
+                ? {
+                    latitude: selectedWatchLocation.latitude,
+                    longitude: selectedWatchLocation.longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                  }
+                : null
+            }
+            provider={PROVIDER_GOOGLE}
+            onPress={() => setMapModalVisible(false)}
+          >
+            {selectedWatchLocation && (
+              <Marker coordinate={selectedWatchLocation} />
+            )}
+          </MapView>
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setMapModalVisible(false)}
+          >
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 };
@@ -174,6 +226,29 @@ const styles = StyleSheet.create({
   centerMessageText: {
     fontSize: 20,
     fontFamily: "EncodeSansExpanded-ExtraBold",
+  },
+  mapModalView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  map: {
+    flex: 1,
+    height: "50%",
+    width: "90%",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 20,
+  },
+  closeButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
 

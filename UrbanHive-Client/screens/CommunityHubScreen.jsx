@@ -326,7 +326,7 @@ const CommunityScreen = ({ navigation, route }) => {
                 }}
                 style={styles.backButton}
               >
-                <Text style={styles.backButtonText}>Back to Home Page</Text>
+                <Text style={styles.backButtonText}>Back to the Lobby</Text>
               </TouchableOpacity>
             </View>
           }
