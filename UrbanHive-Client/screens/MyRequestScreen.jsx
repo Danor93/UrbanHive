@@ -14,7 +14,7 @@ import { useUser } from "../contexts/UserContext";
 import { respondToFriendRequest } from "../utils/apiUtils";
 
 const MyRequestsScreen = ({ navigation }) => {
-  const { user, removeUserRequest } = useUser();
+  const { user, addFriend, removeUserRequest } = useUser();
   const serverIP = useServerIP();
   const [requests, setRequests] = useState(user ? user.requests : []);
 
@@ -23,18 +23,26 @@ const MyRequestsScreen = ({ navigation }) => {
     setRequests(user ? user.requests : []);
   }, [user]);
 
-  const handleResponse = async (senderId, response) => {
+  const handleResponse = async (senderId, userResponse) => {
     try {
       const response = await respondToFriendRequest(
         serverIP,
         user.id,
         senderId,
-        response
+        userResponse
       );
       if (response.ok) {
+        setRequests(requests.filter((req) => req.id !== senderId)); // Remove the request from the local state
+        removeUserRequest(senderId); // Update the user context
+
+        if (userResponse === 1) {
+          const newFriend = {
+            "friend id": senderId,
+            "friend name": response.data.name,
+          };
+          addFriend(newFriend); //update user context friend list
+        }
         Alert.alert("Success", "Response sent successfully");
-        setRequests(requests.filter((req) => req.id !== senderId));
-        removeUserRequest(senderId);
       }
     } catch (error) {
       Alert.alert("Error", error.message);
@@ -93,17 +101,18 @@ const MyRequestsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22,
+    padding: 20,
   },
   item: {
     backgroundColor: "#ffffff",
-    padding: 20,
-    marginVertical: 40,
-    marginHorizontal: 16,
+    padding: 15,
+    marginVertical: 20,
     borderRadius: 10,
+    flex: 1,
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
+    fontFamily: "EncodeSansExpanded-Regular",
   },
   buttonsContainer: {
     flexDirection: "row",
@@ -111,15 +120,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    borderRadius: 20,
+    borderRadius: 15,
     padding: 10,
-    elevation: 2,
-    width: "48%",
+    flex: 1,
+    marginHorizontal: 5,
   },
   buttonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+    fontSize: 14,
   },
   acceptButton: {
     backgroundColor: "#4CAF50",
@@ -127,24 +137,26 @@ const styles = StyleSheet.create({
   declineButton: {
     backgroundColor: "#F44336",
   },
+  emptyContainer: {
+    alignItems: "center",
+    padding: 20,
+  },
   emptyText: {
-    fontSize: 20,
+    fontSize: 18,
     color: "#fff",
-    marginBottom: 20,
-    alignSelf: "center",
-    marginTop: 20,
   },
   backButton: {
     backgroundColor: "#FD844D",
     padding: 10,
-    borderRadius: 40,
-    width: 100,
-    alignSelf: "center",
+    borderRadius: 20,
+    alignItems: "center",
+    width: "60%",
   },
-  buttonText: {
+  backButtonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+    fontSize: 16,
   },
 });
 

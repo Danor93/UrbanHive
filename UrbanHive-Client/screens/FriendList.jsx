@@ -4,7 +4,6 @@ import {
   View,
   FlatList,
   TextInput,
-  Button,
   Alert,
   Modal,
   Text,
@@ -35,7 +34,6 @@ const FriendList = () => {
   const getUserFriend = async () => {
     try {
       setFriends(user.friends || []);
-      console.log("friend list:", user.friends);
       setIsLoading(false);
     } catch (error) {
       Alert.alert("Error", error.message);
@@ -119,7 +117,12 @@ const FriendList = () => {
             onChangeText={setReceiverId}
             style={styles.input}
           />
-          <Button title="Submit" onPress={addFriendHandler} />
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={addFriendHandler}
+          >
+            <Text style={styles.submitButtonText}>Submit</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -213,6 +216,20 @@ const styles = StyleSheet.create({
   },
   friendDetails: {
     flex: 1,
+  },
+  submitButton: {
+    backgroundColor: "#FD844D",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: "center",
+    width: "70%",
+  },
+  submitButtonText: {
+    fontFamily: "EncodeSansExpanded-Bold",
+    textAlign: "center",
+    color: "white",
+    fontSize: 16,
   },
 });
 

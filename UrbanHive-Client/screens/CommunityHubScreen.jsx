@@ -34,15 +34,6 @@ const CommunityScreen = ({ navigation, route }) => {
   const [commentTexts, setCommentTexts] = useState({});
   const [refreshing, setRefreshing] = useState(false);
 
-  // TODO: grab the members from the server.
-  const onlineMembers = [
-    { id: "1", name: "Aaron Loeb" },
-    { id: "2", name: "Adeline Palmerston" },
-    { id: "3", name: "Daniel Gallego" },
-    { id: "4", name: "Juliana Silva" },
-    { id: "5", name: "Pedro Fernandes" },
-  ];
-
   // Function to fetch community details from the server and manage the state.
   const fetchData = async () => {
     try {
@@ -81,7 +72,6 @@ const CommunityScreen = ({ navigation, route }) => {
 
     try {
       await postComment(serverIP, commentData);
-      console.log("Comment posted successfully");
       setCommentTexts({ ...commentTexts, [postId]: "" }); // Reset comment input field
     } catch (error) {
       console.error("Error posting comment:", error);
@@ -98,7 +88,6 @@ const CommunityScreen = ({ navigation, route }) => {
         ...communityDetails,
         posts: communityDetails.posts.filter((post) => post.post_id !== postId),
       });
-      console.log("Post deleted successfully");
     } catch (error) {
       console.error("Error deleting post:", error);
       Alert.alert("Error", "Failed to delete post");
@@ -129,7 +118,6 @@ const CommunityScreen = ({ navigation, route }) => {
           return post;
         }),
       });
-      console.log("Comment deleted successfully");
     } catch (error) {
       console.error("Error deleting comment:", error);
       Alert.alert("Error", "Failed to delete comment");
@@ -184,14 +172,6 @@ const CommunityScreen = ({ navigation, route }) => {
           <Ionicons name="close-circle" size={20} color="red" />
         </TouchableOpacity>
       )}
-    </View>
-  );
-
-  // Function to render each online member.
-  const renderMember = (member) => (
-    <View style={styles.memberItem} key={member.id}>
-      <Ionicons name="person-circle" size={40} color="white" />
-      <Text style={styles.memberName}>{member.name}</Text>
     </View>
   );
 
@@ -306,12 +286,6 @@ const CommunityScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Online Members List */}
-        <Text style={styles.onlineMembersTitle}>Online Members</Text>
-        <View style={styles.membersList}>
-          {onlineMembers.map(renderMember)}
-        </View>
-
         {/* Post List */}
         <FlatList
           data={communityDetails?.posts}
@@ -383,27 +357,21 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    alignItems: "center",
+    alignItems: "flex-start",
     backgroundColor: "black",
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     paddingVertical: 10,
     borderRadius: 20,
-    width: "50%",
-    marginBottom: 5,
+    width: "70%",
+    marginBottom: 10,
   },
   buttonText: {
     color: "white",
     fontSize: 16,
-    marginRight: 10,
+    flex: 1,
   },
   buttonIcon: {
     marginRight: 10,
-  },
-  onlineMembersTitle: {
-    fontSize: 18,
-    fontFamily: "EncodeSansExpanded-SemiBold",
-    color: "black",
-    marginTop: 20,
   },
   membersList: {
     flexGrow: 0,
@@ -451,7 +419,7 @@ const styles = StyleSheet.create({
   commentContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start", // Align items to the start of the flex-direction
+    alignItems: "flex-start",
     backgroundColor: "#f0f0f0",
     padding: 8,
     borderRadius: 5,

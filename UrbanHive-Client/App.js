@@ -1,4 +1,5 @@
 import React from "react";
+import { LogBox } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -12,7 +13,7 @@ import CommunityLobby from "./screens/CommunityLobby";
 import CommunityMembersScreen from "./screens/CommunityMembers";
 import CommunityPublishPost from "./screens/CommunityPublishPost";
 import CommunityCreateEvent from "./screens/CommunityCreateEvent";
-import CommunityJoinEventScreen from "./screens/CommunityJoinEvenet";
+import CommunityJoinEventScreen from "./screens/CommunityJoinEvent";
 import CommunityManagerScreen from "./screens/CommunityManagerScreen";
 import CommunityNightWatch from "./screens/CommunityNightWatch";
 import HomeScreen from "./screens/HomeScreen";
@@ -21,6 +22,9 @@ import MyRequestsScreen from "./screens/MyRequestScreen";
 import useFonts from "./utils/hooks/useFonts";
 import { ServerIPProvider } from "./contexts/ServerIPContext";
 import { UserProvider } from "./contexts/UserContext";
+LogBox.ignoreLogs([
+  "VirtualizedLists should never be nested inside plain ScrollViews with the same orientation",
+]);
 
 const Stack = createStackNavigator();
 

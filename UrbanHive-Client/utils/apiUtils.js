@@ -177,13 +177,13 @@ export const respondToFriendRequest = async (
     );
 
     if (!fetchResponse.ok) {
-      const errorData = await fetchResponse.json(); // Assuming the server might send back more details on the error
-      alert(errorData.error || "Failed to send response"); // Use alert to notify the user
-      throw new Error(errorData.error || "Failed to send response"); // Throw to exit after handling
+      const errorData = await fetchResponse.json();
+      alert(errorData.error || "Failed to send response");
+      throw new Error(errorData.error || "Failed to send response");
     }
 
-    const responseData = await fetchResponse.json();
-    return responseData;
+    // const responseData = await fetchResponse.json();
+    return fetchResponse;
   } catch (error) {
     console.error("Error responding to friend request:", error);
     alert(

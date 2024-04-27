@@ -100,12 +100,22 @@ const CommunityManagerScreen = ({ route }) => {
     };
     createNewNightWatch(serverIP, newNightWatch)
       .then((response) => {
-        // Handle success response
-        Alert.alert(response);
+        // If the response is a success message, fetch updated night watches
+        Alert.alert("Success", "New night watch created.");
+
+        fetchNightWatchesByCommunity(serverIP, communityName)
+          .then((nightWatchesData) => {
+            setNightWatches(nightWatchesData.night_watches); // Set the updated list
+          })
+          .catch((error) => {
+            console.error("Failed to fetch night watches:", error);
+            Alert.alert("Error", "Failed to fetch updated night watches.");
+          });
+
         setModalVisible(false); // Close the modal
       })
       .catch((error) => {
-        // Handle error response
+        console.error("Error creating night watch:", error);
         Alert.alert("Error", "Failed to create night watch.");
       });
   };
@@ -162,10 +172,6 @@ const CommunityManagerScreen = ({ route }) => {
       >
         <Ionicons name="add-outline" size={20} color="white" />
         <Text style={styles.openButtonText}>Open a New Night Watch</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={openMapModal} style={styles.openButton}>
-        <Text style={styles.openButtonText}>Choose Location on Map</Text>
       </TouchableOpacity>
 
       <Modal

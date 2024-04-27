@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     marginBottom: 30,
-    fontWeight: "bold",
+    fontFamily: "EncodeSansExpanded-Bold",
   },
   input: {
     height: 50,
@@ -266,6 +266,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontSize: 20,
+    fontFamily: "EncodeSansExpanded-Bold",
   },
   secondaryButton: {
     paddingVertical: 15,
@@ -276,6 +277,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     textDecorationLine: "underline",
+    fontFamily: "EncodeSansExpanded-Bold",
+  },
+  footerText: {
+    fontSize: 10,
+    fontFamily: "EncodeSansExpanded-Bold",
   },
 });
 

@@ -37,6 +37,8 @@ const CommunityLobby = ({ navigation }) => {
   const [action, setAction] = useState("");
   const serverIP = useServerIP();
 
+  const userId = user.id;
+
   // useEffect to fetch all communities from the server on component mount
   useEffect(() => {
     // Call the function to fetch all communities when the component mounts
@@ -57,16 +59,26 @@ const CommunityLobby = ({ navigation }) => {
     navigation.navigate("CommunityHubScreen", { communityName });
   };
 
+  const getJoinedCommunities = () => {
+    return communities.filter((community) =>
+      community.communityMembers.some((member) => member.id === userId)
+    );
+  };
+
   // Function to determine which action to perform when the modal's confirm button is pressed
   const handleConfirm = () => {
     switch (action) {
       case "create":
-        return handleCreateCommunity();
+        handleCreateCommunity();
+        break;
       case "findRadius":
-        return handleFindCommunityByRadius();
+        handleFindCommunityByRadius();
+        break;
       case "findName":
-        return handleSearch();
-        return;
+        handleSearch();
+        break;
+      default:
+        Alert.alert("Invalid Action", "Unknown action specified.");
     }
   };
 
@@ -87,12 +99,10 @@ const CommunityLobby = ({ navigation }) => {
         area: inputValue,
         location: user.location,
       };
-      console.log("newCommunity:", newCommunity);
       updateUserCommunities(newCommunity);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
-
     setModalVisible(false);
   };
 
@@ -114,13 +124,23 @@ const CommunityLobby = ({ navigation }) => {
 
   // Function to search for communities by name
   const handleSearch = () => {
+    if (!inputValue.trim()) {
+      Alert.alert("Invalid Input", "Please enter a community name to search.");
+      return;
+    }
+
     if (action === "findName" && communities) {
+      const searchQuery = inputValue.toLowerCase().trim();
+
       const filteredCommunities = communities.filter((community) =>
-        community.area.toLowerCase().includes(inputValue.toLowerCase())
+        community.area.toLowerCase().includes(searchQuery)
       );
-      setDisplayedCommunities(filteredCommunities);
-    } else {
-      Alert.alert("No communities found!");
+
+      if (filteredCommunities.length > 0) {
+        setDisplayedCommunities(filteredCommunities);
+      } else {
+        Alert.alert("No communities found!", "Try another name.");
+      }
     }
   };
 
@@ -179,7 +199,7 @@ const CommunityLobby = ({ navigation }) => {
                 data={displayedCommunities}
                 keyExtractor={(item, index) => `community-${index}`}
                 renderItem={({ item }) => {
-                  const isJoined = user.communities.includes(item.area);
+                  const isJoined = user.communities?.includes(item.area);
                   return (
                     <View style={styles.communityContainer}>
                       <Text style={styles.searchCommunityName}>
@@ -260,11 +280,11 @@ const CommunityLobby = ({ navigation }) => {
       </TouchableOpacity>
 
       {/* Displaying user's communities if its not empty */}
-      {communities && communities.length > 0 && (
+      {getJoinedCommunities().length > 0 ? (
         <>
           <Text style={styles.titleText}>Your Communities:</Text>
           <View style={styles.communityList}>
-            {communities.map((community, index) => (
+            {getJoinedCommunities().map((community, index) => (
               <View key={index} style={styles.communityItemContainer}>
                 <TouchableOpacity
                   style={styles.communityNameContainer}
@@ -290,6 +310,10 @@ const CommunityLobby = ({ navigation }) => {
             ))}
           </View>
         </>
+      ) : (
+        <Text style={styles.titleText}>
+          You haven't joined any communities yet.
+        </Text>
       )}
     </LinearGradient>
   );
@@ -412,13 +436,17 @@ const styles = StyleSheet.create({
   },
   manageButton: {
     backgroundColor: "#FD844D",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 5,
     marginLeft: 10,
   },
   manageButtonText: {
     color: "white",
+    fontSize: 14,
+    fontFamily: "EncodeSansExpanded-Regular",
   },
   closeButton: {
     position: "absolute",

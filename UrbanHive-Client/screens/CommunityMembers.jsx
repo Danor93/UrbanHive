@@ -42,6 +42,23 @@ const CommunityMembersScreen = ({ route }) => {
       .catch((error) => console.error(error));
   }, [communityName, serverIP, user.id]);
 
+  // opens the whatsapp with the given phone Number
+  const initiateWhatsApp = (phoneNumber) => {
+    let url = "whatsapp://send?" + "&phone=972" + phoneNumber;
+    Linking.openURL(url)
+      .then((data) => {
+        console.log("WhatsApp Opened");
+      })
+      .catch(() => {
+        alert("Make sure Whatsapp installed on your device");
+      });
+  };
+
+  // When the modal is triggered, open WhatsApp with the formatted URL
+  const onChatPress = () => {
+    initiateWhatsApp(selectedMemberPhoneNumber);
+  };
+
   // Function to render each member in a list
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -57,7 +74,9 @@ const CommunityMembersScreen = ({ route }) => {
       />
       <View style={styles.textContainer}>
         <Text style={styles.memberName}>{item.name}</Text>
-        <Text style={styles.memberAddress}>{item.location.address}</Text>
+        <Text style={styles.memberAddress}>
+          Address: {item.location.address}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -88,27 +107,7 @@ const CommunityMembersScreen = ({ route }) => {
               <Ionicons name="close-outline" size={20} color="black" />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.chatButton}
-              onPress={() => {
-                const phoneNumberWithPrefix = `+972${selectedMemberPhoneNumber.replace(
-                  /^0+/,
-                  ""
-                )}`;
-                const whatsappUrl = `whatsapp://send?phone=${phoneNumberWithPrefix}`;
-
-                // Attempt to open WhatsApp chat using Linking
-                Linking.canOpenURL(whatsappUrl)
-                  .then((supported) => {
-                    if (!supported) {
-                      Alert.alert("WhatsApp is not installed");
-                    } else {
-                      return Linking.openURL(whatsappUrl);
-                    }
-                  })
-                  .catch((err) => console.error("An error occurred", err));
-              }}
-            >
+            <TouchableOpacity style={styles.chatButton} onPress={onChatPress}>
               <Text style={styles.chatButtonText}>Chat on WhatsApp</Text>
             </TouchableOpacity>
           </View>
@@ -182,20 +181,25 @@ const styles = {
     marginTop: 20,
   },
   chatButton: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#FD844D",
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 25,
     borderRadius: 5,
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    width: "90%",
   },
   chatButtonText: {
     color: "white",
     fontSize: 16,
     textAlign: "center",
+    flex: 1,
   },
   closeButton: {
     position: "absolute",

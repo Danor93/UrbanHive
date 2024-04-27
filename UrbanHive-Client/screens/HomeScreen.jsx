@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     fontSize: 18,
+    fontFamily: "EncodeSansExpanded-Bold",
   },
 });
 

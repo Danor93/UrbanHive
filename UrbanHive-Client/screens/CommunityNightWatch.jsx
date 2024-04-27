@@ -34,6 +34,7 @@ const CommunityNightWatch = ({ navigation, route }) => {
           communityName
         );
         if (response) {
+          console.log(response);
           setNightWatches(response.night_watches);
         }
       } catch (error) {
@@ -74,13 +75,20 @@ const CommunityNightWatch = ({ navigation, route }) => {
   };
 
   const renderItem = ({ item }) => {
+    // Check if `user.night_watches` is defined and is an array
+    const userNightWatches = Array.isArray(user.night_watches)
+      ? user.night_watches
+      : [];
+
     // Check if the user has already joined this night watch
-    const hasJoined = user.night_watches.some(
+    const hasJoined = userNightWatches.some(
       (watch) => watch.watch_id === item.watch_id
     );
-    // Calculate the number of already registered members
+
+    // Calculate the number of registered members
     const registeredMembersCount = item.watch_members.length;
-    // Construct the display string for positions
+
+    // Display string for positions
     const positionsDisplay = `${registeredMembersCount} / ${item.positions_amount}`;
 
     return (
@@ -98,8 +106,9 @@ const CommunityNightWatch = ({ navigation, route }) => {
               Positions: {positionsDisplay}
             </Text>
           </View>
-          {!hasJoined &&
-          !item.watch_members.map((member) => member.id).includes(user.id) ? (
+
+          {/* Render join or joined button based on `hasJoined` */}
+          {!hasJoined ? (
             <TouchableOpacity
               style={styles.joinButton}
               onPress={() => handleJoin(item.watch_id)}

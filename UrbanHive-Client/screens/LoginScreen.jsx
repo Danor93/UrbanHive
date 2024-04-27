@@ -6,11 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Image,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import * as SecureStore from "expo-secure-store";
-// import { getConfig } from "../config/config";
 import { useServerIP } from "../contexts/ServerIPContext";
 import { loginUser } from "../utils/apiUtils";
 
@@ -30,6 +28,8 @@ const LoginScreen = ({ navigation }) => {
 
       if (status === "success") {
         await SecureStore.setItemAsync("user_id", ID);
+        setID(""); // Reset the ID field
+        setPassword(""); // Reset the password field
         navigation.navigate("HomeScreen");
       } else if (status === 404) {
         Alert.alert("Wrong id", data.message || "Please check your id");
@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 30,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     color: "white",
-    fontWeight: "bold",
+    fontFamily: "EncodeSansExpanded-Bold",
     textAlign: "center",
     marginBottom: 24,
   },
@@ -119,22 +119,24 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     borderRadius: 25,
     paddingVertical: 15,
+    paddingHorizontal: 20,
     alignItems: "center",
-    marginBottom: 15,
   },
   buttonText: {
     color: "white",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "EncodeSansExpanded-Bold",
   },
   forgotPassword: {
     textAlign: "center",
     color: "white",
+    fontFamily: "EncodeSansExpanded-Regular",
     marginBottom: 15,
   },
   signUpText: {
     textAlign: "center",
     color: "white",
+    fontFamily: "EncodeSansExpanded-Regular",
     textDecorationLine: "underline",
   },
 });

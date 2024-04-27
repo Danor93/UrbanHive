@@ -18,6 +18,13 @@ export const UserProvider = ({ children }) => {
     }));
   };
 
+  const addFriend = (newFriend) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      friends: [...prevUser.friends, newFriend],
+    }));
+  };
+
   const removeUserRequest = (senderId) => {
     setUser((prevUser) => ({
       ...prevUser,
@@ -36,6 +43,7 @@ export const UserProvider = ({ children }) => {
         user,
         SaveUser,
         updateUserCommunities,
+        addFriend,
         removeUserRequest,
         logout,
       }}
