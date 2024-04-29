@@ -127,6 +127,8 @@ const CommunityScreen = ({ navigation, route }) => {
   // Function to render each post in the community.
   const renderPost = ({ item }) => (
     <View style={styles.postContainer}>
+      {/* Display the post creator's name */}
+      <Text style={styles.postCreatorName}>{item.user_name}</Text>
       {item.user_id === user.id && (
         <TouchableOpacity
           onPress={() => handleDeletePost(item.post_id)}
@@ -135,6 +137,7 @@ const CommunityScreen = ({ navigation, route }) => {
           <Ionicons name="close-circle" size={24} color="red" />
         </TouchableOpacity>
       )}
+      <Text style={styles.postHeader}>{item.post_content.user_name}</Text>
       <Text style={styles.postHeader}>{item.post_content.header}</Text>
       <Text style={styles.postBody}>{item.post_content.body}</Text>
       {item.comments &&
@@ -406,6 +409,11 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 20,
     marginVertical: 8,
+  },
+  postCreatorName: {
+    fontSize: 16,
+    fontFamily: "EncodeSansExpanded-Bold",
+    color: "black",
   },
   postHeader: {
     fontSize: 20,

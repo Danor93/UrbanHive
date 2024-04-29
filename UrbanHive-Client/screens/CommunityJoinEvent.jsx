@@ -52,6 +52,7 @@ const CommunityJoinEventScreen = ({ route, navigation }) => {
         serverIP,
         user.id,
         eventItem.community_name,
+        eventItem.event_id,
         eventItem.event_name
       );
       console.log(`Joined event ${eventItem.event_name} successfully`);

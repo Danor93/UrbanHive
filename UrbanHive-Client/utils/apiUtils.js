@@ -403,25 +403,28 @@ export const createEvent = async (serverIP, eventDetails) => {
 };
 
 // Function to join an event
-export const joinEvent = async (serverIP, userId, communityName, eventName) => {
+export const joinEvent = async (
+  serverIP,
+  userId,
+  communityName,
+  eventID,
+  eventName
+) => {
   try {
     const requestBody = {
       user_id: userId,
       community_name: communityName,
-      event_name: eventName,
-      response: true, // Indicating the desire to join
+      event_id: eventID,
+      // response: true, // Indicating the desire to join
     };
 
-    const response = await fetch(
-      `${serverIP}/events/respond_to_event_request`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      }
-    );
+    const response = await fetch(`${serverIP}/events/request_to_join_events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+    });
 
     if (!response.ok) {
       const errorData = await response.json(); // Decode JSON body for error details
