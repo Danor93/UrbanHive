@@ -378,6 +378,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "EncodeSansExpanded-Medium",
     flex: 1,
+    numberOfLines: 1,
+    ellipsizeMode: "tail",
   },
   communityName: {
     backgroundColor: "white",
@@ -416,9 +418,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FD844D",
     borderRadius: 5,
     padding: 10,
+    flex: 1,
   },
   joinButtonText: {
     color: "white",
+    fontSize: 14,
+    fontFamily: "EncodeSansExpanded-Regular",
   },
   communityItemContainer: {
     flexDirection: "row",

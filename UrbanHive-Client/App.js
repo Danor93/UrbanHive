@@ -28,6 +28,12 @@ LogBox.ignoreLogs([
 
 const Stack = createStackNavigator();
 
+/**
+ * App.jsx serves as the main entry point for the React Native application.
+ * It sets up navigation, provides global context for user and server data, and loads necessary fonts.
+ *
+ * @returns {JSX.Element} The root component of the application.
+ */
 export default function App() {
   const fontsLoaded = useFonts({
     "EncodeSansExpanded-Black": require("./assets/fonts/EncodeSansExpanded-Black.ttf"),
@@ -51,7 +57,7 @@ export default function App() {
               component={LoginScreen}
               options={{ headerShown: false }}
             />
-            {/* Set CreateAccountScreen as the initial screen */}
+            {/* Screens for various functionalities */}
             <Stack.Screen
               name="CreateAccount"
               component={CreateAccountScreen}

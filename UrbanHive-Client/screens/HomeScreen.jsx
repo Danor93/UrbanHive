@@ -36,7 +36,6 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const ProfileImage = () => {
-    // TODO: grab the image url from the user database on the server
     return (
       <Image
         source={require("../assets/images/Empty_Profile.png")}

@@ -6,12 +6,8 @@ import {
   FlatList,
   StyleSheet,
   Alert,
-  Modal,
-  TextInput,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
-import DatePicker from "react-native-date-picker";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 // Import context hooks for accessing server IP and user data
 import { useServerIP } from "../contexts/ServerIPContext";
@@ -25,7 +21,11 @@ import {
   createNewNightWatch,
   fetchNightWatchesByCommunity,
   closeNightWatch,
+  fetchAllEvents,
+  deleteEvent,
 } from "../utils/apiUtils";
+
+import ModalComponent from "../components/ModalComponent";
 
 // Component to manage community-related activities
 const CommunityManagerScreen = ({ route }) => {
@@ -40,6 +40,7 @@ const CommunityManagerScreen = ({ route }) => {
   const [watchRadius, setWatchRadius] = useState("");
   const [positionsAmount, setPositionsAmount] = useState("");
   const [nightWatches, setNightWatches] = useState([]);
+  const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   // Get user's current location
   const userLocation = user.location;
@@ -50,8 +51,9 @@ const CommunityManagerScreen = ({ route }) => {
     Promise.all([
       fetchCommunityDetails(serverIP, communityName),
       fetchNightWatchesByCommunity(serverIP, communityName),
+      fetchAllEvents(serverIP, communityName),
     ])
-      .then(([communityDetails, nightWatchesData]) => {
+      .then(([communityDetails, nightWatchesData, fetchedEvents]) => {
         // Setting join requests and night watches from the fetched data
         if (communityDetails.join_request) {
           setJoinRequests([communityDetails.join_request]);
@@ -62,6 +64,15 @@ const CommunityManagerScreen = ({ route }) => {
           setNightWatches(nightWatchesData.night_watches);
         } else {
           setNightWatches([]);
+        }
+        if (fetchedEvents) {
+          // Filter events initiated by the current user
+          const userEvents = fetchedEvents.filter(
+            (event) => event.initiator === user.id
+          );
+          setEvents(userEvents);
+        } else {
+          setEvents([]);
         }
         setIsLoading(false);
       })
@@ -134,8 +145,22 @@ const CommunityManagerScreen = ({ route }) => {
       });
   };
 
+  // Function to handle the delete of a single event
+  const handleDeleteEvent = (eventId) => {
+    deleteEvent(serverIP, eventId)
+      .then(() => {
+        Alert.alert("Success", "Event deleted successfully.");
+        setEvents((currentEvents) =>
+          currentEvents.filter((event) => event.event_id !== eventId)
+        );
+      })
+      .catch((error) => {
+        Alert.alert("Error", "Failed to delete event.");
+      });
+  };
+
   // Function to handle join requests to the community
-  const handleResponse = (requestId, response) => {
+  const handleResponseToJoinCommunity = (requestId, response) => {
     respondToJoinCommunityRequest(serverIP, requestId, response)
       .then(() => {
         // Success: Filter out the request that was just responded to
@@ -158,7 +183,201 @@ const CommunityManagerScreen = ({ route }) => {
       });
   };
 
-  // Component rendering including Modal for creating night watches and respond the community request
+  // Function to render the list of night watches
+  const renderNightWatches = (nightWatches, closeNightWatchHandler) => (
+    <FlatList
+      data={nightWatches}
+      keyExtractor={(item, index) => `nightWatch-${index}`}
+      renderItem={({ item }) => (
+        <View style={styles.nightWatchContainer}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <View>
+              <Text
+                style={[
+                  styles.nightWatchDetailText,
+                  { fontFamily: "EncodeSansExpanded-Bold" },
+                ]}
+              >
+                Area:
+              </Text>
+              <Text style={styles.nightWatchDetailText}>
+                {item.community_area}
+              </Text>
+              <Text
+                style={[
+                  styles.nightWatchDetailText,
+                  { fontFamily: "EncodeSansExpanded-Bold" },
+                ]}
+              >
+                Date:
+              </Text>
+              <Text style={styles.nightWatchDetailText}>{item.watch_date}</Text>
+              <Text
+                style={[
+                  styles.nightWatchDetailText,
+                  { fontFamily: "EncodeSansExpanded-Bold" },
+                ]}
+              >
+                Radius:
+              </Text>
+              <Text style={styles.nightWatchDetailText}>
+                {item.watch_radius} km
+              </Text>
+              <Text
+                style={[
+                  styles.nightWatchDetailText,
+                  { fontFamily: "EncodeSansExpanded-Bold" },
+                ]}
+              >
+                Positions:
+              </Text>
+              <Text style={styles.nightWatchDetailText}>
+                {item.positions_amount}
+              </Text>
+              <Text
+                style={[
+                  styles.nightWatchDetailText,
+                  { fontFamily: "EncodeSansExpanded-Bold" },
+                ]}
+              >
+                Initiator:
+              </Text>
+              <Text style={styles.nightWatchDetailText}>
+                {item.initiator_name}
+              </Text>
+              {item.watch_members && item.watch_members.length > 0 && (
+                <Text
+                  style={[
+                    styles.nightWatchDetailText,
+                    { fontFamily: "EncodeSansExpanded-Bold" },
+                  ]}
+                >
+                  Members:
+                </Text>
+              )}
+              {item.watch_members.map((member, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    styles.memberDetailText,
+                    { fontFamily: "EncodeSansExpanded-Regular" },
+                  ]}
+                >
+                  {member.name}
+                </Text>
+              ))}
+            </View>
+            <TouchableOpacity
+              style={styles.closeButtonStyle}
+              onPress={() => {
+                Alert.alert(
+                  "Close Night Watch",
+                  "Are you sure you want to remove this night watch?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Yes",
+                      onPress: () => closeNightWatchHandler(item.watch_id),
+                    },
+                  ]
+                );
+              }}
+            >
+              <Ionicons name="close-circle-outline" size={24} color="red" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+    />
+  );
+
+  // Function to render the list of join requests
+  const renderJoinRequests = (joinRequests, handleResponseToJoinCommunity) => (
+    <>
+      <Text style={styles.title}>Requests to join {communityName}:</Text>
+      <FlatList
+        data={joinRequests}
+        keyExtractor={(item) => item.request_id}
+        renderItem={({ item }) => (
+          <View style={styles.requestContainer}>
+            <Text style={styles.requestText}>{item.sender_name}</Text>
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.acceptButton]}
+                onPress={() =>
+                  handleResponseToJoinCommunity(item.request_id, 1)
+                }
+              >
+                <Text style={styles.buttonText}>Accept</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.declineButton]}
+                onPress={() =>
+                  handleResponseToJoinCommunity(item.request_id, 0)
+                }
+              >
+                <Text style={styles.buttonText}>Decline</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
+    </>
+  );
+
+  // Separate function to render the list of events
+  const renderEventList = (events, handleDeleteEvent) => (
+    <>
+      <Text style={styles.title}>Event of {communityName}:</Text>
+      <FlatList
+        data={events}
+        keyExtractor={(item) => item.event_id}
+        renderItem={({ item }) => (
+          <View style={styles.eventContainer}>
+            <Text style={[styles.eventDetailText, styles.eventTitle]}>
+              {item.event_name} ({item.event_type})
+            </Text>
+            <Text style={styles.eventDetailText}>
+              Location: {item.location.address}
+            </Text>
+            <Text style={styles.eventDetailText}>
+              Start Time: {item.start_time}
+            </Text>
+            <Text style={styles.eventDetailText}>
+              End Time: {item.end_time}
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                Alert.alert(
+                  "Delete Event",
+                  "Are you sure you want to delete this event?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Yes",
+                      onPress: () => handleDeleteEvent(item.event_id),
+                    },
+                  ]
+                );
+              }}
+              style={styles.deleteButton}
+            >
+              <Ionicons name="trash-bin" size={20} color="red" />
+            </TouchableOpacity>
+          </View>
+        )}
+      />
+    </>
+  );
+
+  // Component rendering including Modal for creating night watches, respond the community request and managing the user events
   return (
     <LinearGradient
       colors={["#0f0f0f", "#05403e", "#03af68"]}
@@ -174,247 +393,38 @@ const CommunityManagerScreen = ({ route }) => {
         <Text style={styles.openButtonText}>Open a New Night Watch</Text>
       </TouchableOpacity>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        {/* Modal content with form inputs and submit button */}
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={styles.closeButton}
-            >
-              <Text style={styles.closeButtonText}>X</Text>
-            </TouchableOpacity>
-            <View style={styles.datePickerContainer}>
-              <Text style={styles.label}>Watch Date:</Text>
-              <DatePicker
-                date={watchDate}
-                onDateChange={setWatchDate}
-                mode="date"
-                theme="light"
-                textColor="black"
-                androidVariant="iosClone"
-              />
-            </View>
-            <Text style={styles.label}>Watch Radius (km):</Text>
-            <TextInput
-              placeholder="Watch Radius"
-              value={watchRadius}
-              onChangeText={setWatchRadius}
-              keyboardType="numeric"
-              style={styles.textInput}
-            />
-            <Text style={styles.label}>Positions Amount:</Text>
-            <TextInput
-              placeholder="Positions Amount"
-              value={positionsAmount}
-              onChangeText={setPositionsAmount}
-              keyboardType="numeric"
-              style={styles.textInput}
-            />
-
-            <TouchableOpacity
-              onPress={openMapModal}
-              style={styles.openMapButton}
-            >
-              <Text style={styles.openMapButtonText}>
-                Choose Location on Map
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleCreateNightWatch}
-              style={styles.createButton}
-            >
-              <Text style={styles.createButtonText}>Create</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Map Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isMapModalVisible}
-        onRequestClose={closeMapModal}
-      >
-        <View style={styles.mapModalView}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: userLocation.latitude,
-              longitude: userLocation.longitude,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-            onPress={onMapPress}
-            provider={PROVIDER_GOOGLE}
-          >
-            {selectedLocation && <Marker coordinate={selectedLocation} />}
-          </MapView>
-
-          <TouchableOpacity
-            onPress={closeMapModal}
-            style={styles.closeMapButton}
-          >
-            <Text style={styles.closeMapButtonText}>Close Map</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+      <ModalComponent
+        isModalVisible={isModalVisible}
+        setModalVisible={setModalVisible}
+        isMapModalVisible={isMapModalVisible}
+        setMapModalVisible={setMapModalVisible}
+        watchDate={watchDate}
+        setWatchDate={setWatchDate}
+        watchRadius={watchRadius}
+        setWatchRadius={setWatchRadius}
+        positionsAmount={positionsAmount}
+        setPositionsAmount={setPositionsAmount}
+        selectedLocation={selectedLocation}
+        setSelectedLocation={setSelectedLocation}
+        handleCreateNightWatch={handleCreateNightWatch}
+        userLocation={userLocation}
+        onMapPress={onMapPress}
+        styles={styles}
+      />
 
       <Text style={styles.nightWatchesTitle}>
         {communityName} Night Watches:
       </Text>
 
-      {/* Render Night Watches events */}
-      <FlatList
-        data={nightWatches}
-        keyExtractor={(item, index) => `nightWatch-${index}`}
-        renderItem={({ item }) => (
-          <View style={styles.nightWatchContainer}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <View>
-                <Text
-                  style={[
-                    styles.nightWatchDetailText,
-                    { fontFamily: "EncodeSansExpanded-Bold" },
-                  ]}
-                >
-                  Area:
-                </Text>
-                <Text style={styles.nightWatchDetailText}>
-                  {item.community_area}
-                </Text>
-                <Text
-                  style={[
-                    styles.nightWatchDetailText,
-                    { fontFamily: "EncodeSansExpanded-Bold" },
-                  ]}
-                >
-                  Date:
-                </Text>
-                <Text style={styles.nightWatchDetailText}>
-                  {item.watch_date}
-                </Text>
-                <Text
-                  style={[
-                    styles.nightWatchDetailText,
-                    { fontFamily: "EncodeSansExpanded-Bold" },
-                  ]}
-                >
-                  Radius:
-                </Text>
-                <Text style={styles.nightWatchDetailText}>
-                  {item.watch_radius} km
-                </Text>
-                <Text
-                  style={[
-                    styles.nightWatchDetailText,
-                    { fontFamily: "EncodeSansExpanded-Bold" },
-                  ]}
-                >
-                  Positions:
-                </Text>
-                <Text style={styles.nightWatchDetailText}>
-                  {item.positions_amount}
-                </Text>
-                <Text
-                  style={[
-                    styles.nightWatchDetailText,
-                    { fontFamily: "EncodeSansExpanded-Bold" },
-                  ]}
-                >
-                  Initiator:
-                </Text>
-                <Text style={styles.nightWatchDetailText}>
-                  {item.initiator_name}
-                </Text>
-                {item.watch_members && item.watch_members.length > 0 && (
-                  <Text
-                    style={[
-                      styles.nightWatchDetailText,
-                      { fontFamily: "EncodeSansExpanded-Bold" },
-                    ]}
-                  >
-                    Members:
-                  </Text>
-                )}
-                {item.watch_members.map((member, index) => (
-                  <Text
-                    key={index}
-                    style={[
-                      styles.memberDetailText,
-                      { fontFamily: "EncodeSansExpanded-Regular" },
-                    ]}
-                  >
-                    {member.name}
-                  </Text>
-                ))}
-              </View>
-              <TouchableOpacity
-                style={styles.closeButtonStyle}
-                onPress={() => {
-                  Alert.alert(
-                    "Close Night Watch",
-                    "Are you sure you want to remove this night watch?",
-                    [
-                      { text: "Cancel", style: "cancel" },
-                      {
-                        text: "Yes",
-                        onPress: () => closeNightWatchHandler(item.watch_id),
-                      },
-                    ]
-                  );
-                }}
-              >
-                <Ionicons name="close-circle-outline" size={24} color="red" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+      {/* Render Night Watches */}
+      {renderNightWatches(nightWatches, closeNightWatchHandler)}
 
-      {/* Render Requests to join the community */}
-      {joinRequests.length > 0 && (
-        <>
-          <Text style={styles.title}>Requests to join {communityName}:</Text>
-          <FlatList
-            data={joinRequests}
-            keyExtractor={(item) => item.request_id}
-            renderItem={({ item }) => (
-              <View style={styles.requestContainer}>
-                <Text style={styles.requestText}>{item.sender_name}</Text>
-                <View style={styles.buttonsContainer}>
-                  <TouchableOpacity
-                    style={[styles.button, styles.acceptButton]}
-                    onPress={() => handleResponse(item.request_id, 1)}
-                  >
-                    <Text style={styles.buttonText}>Accept</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.button, styles.declineButton]}
-                    onPress={() => handleResponse(item.request_id, 0)}
-                  >
-                    <Text style={styles.buttonText}>Decline</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-          />
-        </>
-      )}
+      {/* Render Join Requests */}
+      {joinRequests.length > 0 &&
+        renderJoinRequests(joinRequests, handleResponseToJoinCommunity)}
+
+      {/* Render Event List */}
+      {events.length > 0 && renderEventList(events, handleDeleteEvent)}
     </LinearGradient>
   );
 };
@@ -608,6 +618,7 @@ const styles = StyleSheet.create({
   nightWatchDetailText: {
     fontSize: 16,
     marginBottom: 5,
+    fontFamily: "EncodeSansExpanded-Regular",
   },
   memberDetailText: {
     fontSize: 14,
@@ -647,6 +658,26 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  eventContainer: {
+    backgroundColor: "white",
+    marginVertical: 8,
+    marginHorizontal: 16,
+    borderRadius: 10,
+    padding: 20,
+  },
+  eventTitle: {
+    fontFamily: "EncodeSansExpanded-Bold",
+  },
+  eventDetailText: {
+    fontSize: 12,
+    marginBottom: 5,
+    fontFamily: "EncodeSansExpanded-Bold",
+  },
+  deleteButton: {
+    position: "absolute",
+    right: 10,
+    top: 10,
   },
 });
 

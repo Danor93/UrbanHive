@@ -1,7 +1,3 @@
-const headers = {
-  "Content-Type": "application/json",
-};
-
 // Login function
 export const loginUser = async (serverIP, ID, password) => {
   const requestOptions = {
@@ -451,6 +447,31 @@ export const joinEvent = async (
       "An unexpected error occurred while attempting to join the event. Please try again."
     ); // General catch-all error notification
     throw error; // Rethrow to allow further handling
+  }
+};
+
+// Function to delete an event by its ID
+export const deleteEvent = async (serverIP, eventId) => {
+  try {
+    const response = await fetch(`${serverIP}/events/delete_event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ event_id: eventId }),
+    });
+
+    // Check if the response indicates success
+    if (response.status === 200) {
+      const data = await response.json(); // Parse response JSON
+      return data.message; // Return success message
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Unknown error occurred");
+    }
+  } catch (error) {
+    console.error("Error deleting event:", error.message || error);
+    throw new Error(error.message || "Failed to delete event");
   }
 };
 

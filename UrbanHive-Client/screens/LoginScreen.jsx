@@ -118,13 +118,13 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "black",
     borderRadius: 25,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 15,
     alignItems: "center",
   },
   buttonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "EncodeSansExpanded-Bold",
   },
   forgotPassword: {
