@@ -17,7 +17,14 @@ import * as Location from "expo-location";
 import { useServerIP } from "../contexts/ServerIPContext";
 import { createAccountWithLocation } from "../utils/apiUtils";
 
+/**
+ * Screen for creating a new user account, capturing both user details and current location.
+ * This screen handles input validation, location permissions, and submitting user data to the server.
+ *
+ * @param {{ navigation: any }} props - Component props containing navigation details for navigation.
+ */
 const CreateAccountScreen = ({ navigation }) => {
+  // Form state to handle input fields for user account creation
   const [formData, setFormData] = useState({
     id: "",
     name: "",
@@ -25,6 +32,10 @@ const CreateAccountScreen = ({ navigation }) => {
     password: "",
   });
 
+  /**
+   * Fetches and prompts the user for location permission and retrieves current location
+   * at the start of the component lifecycle.
+   */
   useEffect(() => {
     const getLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -35,16 +46,18 @@ const CreateAccountScreen = ({ navigation }) => {
         );
         return;
       }
-
-      let { coords } = await Location.getCurrentPositionAsync({});
-      // Proceed with your location logic
     };
 
     getLocation();
   }, []);
 
-  const serverIP = useServerIP();
+  const serverIP = useServerIP(); // Context hook for accessing the server IP
 
+  /**
+   * Handles input changes for form fields.
+   * @param {string} name - The name of the form field.
+   * @param {string} value - The current value of the input field.
+   */
   const handleChange = (name, value) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -52,8 +65,13 @@ const CreateAccountScreen = ({ navigation }) => {
     }));
   };
 
+  /**
+   * Validates form data before submission.
+   * Checks the length and format of user input fields.
+   * @returns {boolean} - Returns true if all validations pass, otherwise false.
+   */
   const validateInput = () => {
-    // Simple validation checks
+    // Validation rules for each form field
 
     const idRegex = /^\d{9}$/;
     if (!idRegex.test(formData.id)) {
@@ -91,6 +109,10 @@ const CreateAccountScreen = ({ navigation }) => {
     return true;
   };
 
+  /**
+   * Handles the submission of form data.
+   * It validates input, requests location permission, fetches the current location, and submits all data to the server.
+   */
   const handleSubmit = async () => {
     if (!validateInput()) {
       return; // Stop if the validation fails
@@ -218,6 +240,7 @@ const CreateAccountScreen = ({ navigation }) => {
   );
 };
 
+// Styles for the component using StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,

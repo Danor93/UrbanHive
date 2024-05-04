@@ -49,6 +49,7 @@ const CommunityScreen = ({ navigation, route }) => {
     }
   };
 
+  // fetching the data in the mount of the component
   useEffect(() => {
     fetchData();
   }, []);

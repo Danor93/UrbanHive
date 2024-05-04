@@ -17,20 +17,36 @@ import { useServerIP } from "../contexts/ServerIPContext";
 import { useUser } from "../contexts/UserContext";
 import { addFriend } from "../utils/apiUtils";
 
+/**
+ * A React component for displaying and managing a user's friends list.
+ * Includes functionality to search, add new friends, and view existing friends.
+ */
 const FriendList = () => {
+  // State for managing the list of friends.
   const [friends, setFriends] = useState([]);
+  // State for the search query input by the user.
   const [searchQuery, setSearchQuery] = useState("");
+  // State to control the visibility of the modal for adding friends.
   const [isModalVisible, setModalVisible] = useState(false);
+  // State for storing the user ID of the friend to be added.
   const [receiverId, setReceiverId] = useState("");
+  // State to manage the loading indicator visibility while fetching data.
   const [isLoading, setIsLoading] = useState(true);
+  // Context hook to access the current user's information.
   const { user } = useUser();
-
+  // Context hook for retrieving the server IP.
   const serverIP = useServerIP();
 
+  /**
+   * Fetches the user's friends on component mount and updates the friends state.
+   */
   useEffect(() => {
     getUserFriend();
   }, []);
 
+  /**
+   * Async function to fetch user's friends list and update UI accordingly.
+   */
   const getUserFriend = async () => {
     try {
       setFriends(user.friends || []);
@@ -40,6 +56,10 @@ const FriendList = () => {
     }
   };
 
+  /**
+   * Handles adding a friend by making an API request with the user's and friend's IDs.
+   * Refreshes the friend list upon successful addition.
+   */
   const addFriendHandler = async () => {
     try {
       const userId = await SecureStore.getItemAsync("user_id");
@@ -129,6 +149,7 @@ const FriendList = () => {
   );
 };
 
+// Styles for the component using StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,

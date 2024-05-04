@@ -15,8 +15,10 @@ import {
   fetchNightWatchesByCommunity,
   joinNightWatch,
 } from "../utils/apiUtils";
+// import the component to use the google map services.
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
+// Main component for displaying community night watches.
 const CommunityNightWatch = ({ navigation, route }) => {
   const { communityName } = route.params;
   const serverIP = useServerIP();
@@ -26,6 +28,7 @@ const CommunityNightWatch = ({ navigation, route }) => {
   const [isMapModalVisible, setMapModalVisible] = useState(false);
   const [selectedWatchLocation, setSelectedWatchLocation] = useState(null);
 
+  // useEffect to fetch the data in the mount of the current component.
   useEffect(() => {
     const fetchNightWatches = async () => {
       try {
@@ -45,6 +48,7 @@ const CommunityNightWatch = ({ navigation, route }) => {
     fetchNightWatches();
   }, [route.params?.community_name, serverIP]);
 
+  // function to handle the join of the current user to the selected night watch.
   const handleJoin = async (nightWatchId) => {
     const { success, message, error } = await joinNightWatch(
       serverIP,
@@ -69,11 +73,13 @@ const CommunityNightWatch = ({ navigation, route }) => {
     }
   };
 
+  // function to set the selected night watch location for showing it on the map.
   const openMapWithLocation = (location) => {
     setSelectedWatchLocation(location); // Set the location for the map
     setMapModalVisible(true); // Open the map modal
   };
 
+  // function to render the item for the flat list of the night watches.
   const renderItem = ({ item }) => {
     // Check if `user.night_watches` is defined and is an array
     const userNightWatches = Array.isArray(user.night_watches)
@@ -183,6 +189,7 @@ const CommunityNightWatch = ({ navigation, route }) => {
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,

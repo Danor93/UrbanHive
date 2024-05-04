@@ -5,13 +5,24 @@ import { useUser } from "../contexts/UserContext";
 import { useServerIP } from "../contexts/ServerIPContext";
 import { publishPost } from "../utils/apiUtils";
 
+/**
+ * Screen component to publish a post in a community.
+ * Utilizes the React Context API to fetch user and server information.
+ *
+ * @param {{ navigation: any, route: any }} props - Component props containing navigation and route details.
+ */
 const CommunityPublishPost = ({ navigation, route }) => {
   const { communityName } = route.params;
-  const { user } = useUser();
-  const serverIP = useServerIP();
-  const [header, setHeader] = useState("");
-  const [body, setBody] = useState("");
+  const { user } = useUser(); // Context hook for accessing user data
+  const serverIP = useServerIP(); // Context hook for accessing server IP
+  const [header, setHeader] = useState(""); // State for post title
+  const [body, setBody] = useState(""); // State for post body
 
+  /**
+   * Handler for publishing a post. It performs the publish operation using an API utility function.
+   * On success, it navigates back to the previous screen with a success message.
+   * On failure, it displays an error alert.
+   */
   const publishPostHandler = async () => {
     try {
       await publishPost(serverIP, user.id, communityName, header, body);
@@ -56,6 +67,7 @@ const CommunityPublishPost = ({ navigation, route }) => {
   );
 };
 
+// Styles for the component using StyleSheet
 const styles = {
   container: {
     flex: 1,

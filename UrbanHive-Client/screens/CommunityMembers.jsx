@@ -7,7 +7,6 @@ import {
   Modal,
   Image,
   Linking,
-  Alert,
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";

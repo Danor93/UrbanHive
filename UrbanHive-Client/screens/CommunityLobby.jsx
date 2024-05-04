@@ -59,6 +59,7 @@ const CommunityLobby = ({ navigation }) => {
     navigation.navigate("CommunityHubScreen", { communityName });
   };
 
+  // function to fileter to already joined communities of the current user
   const getJoinedCommunities = () => {
     return communities.filter((community) =>
       community.communityMembers.some((member) => member.id === userId)

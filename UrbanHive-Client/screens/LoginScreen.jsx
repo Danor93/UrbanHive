@@ -12,20 +12,35 @@ import * as SecureStore from "expo-secure-store";
 import { useServerIP } from "../contexts/ServerIPContext";
 import { loginUser } from "../utils/apiUtils";
 
+/**
+ * Component for user login, handling user input and authentication.
+ *
+ * @param {{ navigation: any }} props - Component props containing navigation details.
+ */
 const LoginScreen = ({ navigation }) => {
+  // State for handling user ID input.
   const [ID, setID] = useState("");
+  // State for handling user password input.
   const [password, setPassword] = useState("");
+  // Context hook to retrieve the server IP address.
   const serverIP = useServerIP();
 
+  /**
+   * Handles the login button press event.
+   * Validates input, makes an API call for authentication, and handles responses.
+   */
   const handleLogin = async () => {
+    // Validation for empty input fields.
     if (!ID || !password) {
       Alert.alert("Error", "Please enter both a username and password.");
       return;
     }
 
     try {
+      // API call to authenticate the user.
       const { status, data } = await loginUser(serverIP, ID, password);
 
+      // Handling different response statuses.
       if (status === "success") {
         await SecureStore.setItemAsync("user_id", ID);
         setID(""); // Reset the ID field
@@ -51,7 +66,6 @@ const LoginScreen = ({ navigation }) => {
     >
       <View style={styles.loginContainer}>
         <Text style={styles.title}>UrbanHive</Text>
-        {/* <Image source={UserIcon} style={styles.userIcon} /> */}
         <TextInput
           style={styles.input}
           placeholder="ID"
@@ -86,6 +100,7 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
+// Styles for the component using StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -83,14 +83,17 @@ const CommunityManagerScreen = ({ route }) => {
       });
   }, [serverIP, communityName]);
 
+  // function to open the map modal through the state change.
   const openMapModal = () => {
     setMapModalVisible(true);
   };
 
+  // function to close the map modal through the state change.
   const closeMapModal = () => {
     setMapModalVisible(false);
   };
 
+  // function for taking the location information of the user choosen night watch location.
   const onMapPress = (event) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setSelectedLocation({ latitude, longitude });
@@ -163,7 +166,6 @@ const CommunityManagerScreen = ({ route }) => {
   const handleResponseToJoinCommunity = (requestId, response) => {
     respondToJoinCommunityRequest(serverIP, requestId, response)
       .then(() => {
-        // Success: Filter out the request that was just responded to
         const updatedJoinRequests = joinRequests.filter(
           (request) => request.request_id !== requestId
         );

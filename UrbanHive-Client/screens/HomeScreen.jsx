@@ -14,12 +14,20 @@ import * as SecureStore from "expo-secure-store";
 import { useUser } from "../contexts/UserContext";
 import { fetchUserDetails } from "../utils/apiUtils";
 
+/**
+ * Home screen component that provides navigation to different parts of the app
+ * and displays user greeting and profile image.
+ *
+ * @param {{ navigation: any }} props - Component props containing navigation details.
+ */
 const HomeScreen = ({ navigation }) => {
-  // const { username } = route.params || "Danor";
-  // const [user, setUser] = useState(null);
   const serverIP = useServerIP();
   const { SaveUser, user } = useUser();
 
+  /**
+   * Fetches user details from the server on component mount
+   * and updates user context.
+   */
   useEffect(() => {
     const getUserDetails = async () => {
       try {
@@ -35,6 +43,10 @@ const HomeScreen = ({ navigation }) => {
     getUserDetails();
   }, []);
 
+  /**
+   * Displays the profile image component.
+   * @returns {JSX.Element} A React component that displays an image.
+   */
   const ProfileImage = () => {
     return (
       <Image
@@ -98,6 +110,7 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
+// Styles for the component using StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,

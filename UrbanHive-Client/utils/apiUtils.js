@@ -1,4 +1,12 @@
-// Login function
+/**
+ * log in a user using the given credentials and server IP address.
+ * It sends a POST request to the server's login endpoint.
+ *
+ * @param {string} serverIP - The IP address of the server.
+ * @param {string} ID - The user ID.
+ * @param {string} password - The user's password.
+ * @returns {Promise<Object>} - A promise that resolves to an object indicating the status and data or error message.
+ */
 export const loginUser = async (serverIP, ID, password) => {
   const requestOptions = {
     method: "POST",
@@ -46,6 +54,14 @@ export const loginUser = async (serverIP, ID, password) => {
   };
 };
 
+/**
+ * Creates a user account with additional location data.
+ * Sends a POST request to the server's user creation endpoint.
+ *
+ * @param {string} serverIP - The IP address of the server.
+ * @param {Object} accountData - The account data including location details.
+ * @returns {Promise<Object|undefined>} - A promise resolving to the response data from the server or undefined if an error occurs.
+ */
 export const createAccountWithLocation = async (serverIP, accountData) => {
   const requestOptions = {
     method: "POST",
@@ -91,7 +107,13 @@ export const createAccountWithLocation = async (serverIP, accountData) => {
   }
 };
 
-// Function to fetch user details
+/**
+ * Fetches user details from the server using the user's ID.
+ *
+ * @param {string} serverIP - The IP address of the server.
+ * @param {string} userId - The ID of the user whose details are to be fetched.
+ * @returns {Promise<Object>} - A promise that resolves with the user's details if successful.
+ */
 export const fetchUserDetails = async (serverIP, userId) => {
   try {
     const response = await fetch(`${serverIP}/user/${userId}`);
@@ -116,7 +138,14 @@ export const fetchUserDetails = async (serverIP, userId) => {
   }
 };
 
-// Function to add a friend
+/**
+ * Adds a friend to the user's friend list by making a server request.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} senderId - The ID of the user who is sending the friend request.
+ * @param {string} receiverId - The ID of the user who is receiving the friend request.
+ * @returns {Promise<string>} - A promise that resolves with a success message if the friend is added successfully.
+ */
 export const addFriend = async (serverIP, senderId, receiverId) => {
   try {
     const response = await fetch(`${serverIP}/user/add-friend`, {
@@ -147,7 +176,15 @@ export const addFriend = async (serverIP, senderId, receiverId) => {
   }
 };
 
-// Function to respond to a friend request
+/**
+ * Handles the response to a friend request by sending the user's decision to the server.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} receiverId - The ID of the user who received the friend request.
+ * @param {string} senderId - The ID of the user who sent the friend request.
+ * @param {number} response - The response to the request (1 for accept, 0 for decline).
+ * @returns {Promise<Response>} - A promise that resolves with the server's response object.
+ */
 export const respondToFriendRequest = async (
   serverIP,
   receiverId,
@@ -189,6 +226,12 @@ export const respondToFriendRequest = async (
   }
 };
 
+/**
+ * Fetches all community data from the server.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @returns {Promise<Array>} - A promise that resolves with an array of community data.
+ */
 export const fetchAllCommunities = async (serverIP) => {
   try {
     const response = await fetch(`${serverIP}/communities/get_all`, {
@@ -208,7 +251,15 @@ export const fetchAllCommunities = async (serverIP) => {
   }
 };
 
-// Function to create a community
+/**
+ * Creates a community by submitting community details to the server.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} managerId - The ID of the community manager.
+ * @param {string} area - The geographical area of the community.
+ * @param {string} location - The specific location details of the community.
+ * @returns {Promise<Object>} - A promise that resolves with the server response data.
+ */
 export const createCommunity = async (serverIP, managerId, area, location) => {
   try {
     const response = await fetch(`${serverIP}/communities/add_community`, {
@@ -251,7 +302,14 @@ export const createCommunity = async (serverIP, managerId, area, location) => {
   }
 };
 
-// Function to find communities by radius and location
+/**
+ * Searches for communities within a specified radius and location.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {number} radius - The radius within which to search for communities.
+ * @param {string} location - The central location from which the radius is measured.
+ * @returns {Promise<Object>} - A promise that resolves with the found communities or an error message.
+ */
 export const findCommunitiesByRadiusAndLocation = async (
   serverIP,
   radius,
@@ -298,7 +356,13 @@ export const findCommunitiesByRadiusAndLocation = async (
   }
 };
 
-// Fetch community members by area
+/**
+ * Fetches the members of a community based on the community name.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} communityName - The name of the community to fetch members from.
+ * @returns {Promise<Array>} - A promise that resolves with a list of community members.
+ */
 export const fetchCommunityMembers = async (serverIP, communityName) => {
   try {
     const area = encodeURIComponent(communityName);
@@ -337,6 +401,12 @@ export const fetchCommunityMembers = async (serverIP, communityName) => {
   }
 };
 
+/**
+ * Fetches all events from the server.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @returns {Promise<Array>} - A promise that resolves with a list of events.
+ */
 export const fetchAllEvents = async (serverIP) => {
   try {
     const response = await fetch(`${serverIP}/events/get_all_events`, {
@@ -360,7 +430,13 @@ export const fetchAllEvents = async (serverIP) => {
   }
 };
 
-// Function to create an event
+/**
+ * Creates an event within a community on the server.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {Object} eventDetails - The details of the event to be created.
+ * @returns {Promise<Object>} - A promise that resolves with the creation response from the server.
+ */
 export const createEvent = async (serverIP, eventDetails) => {
   try {
     const response = await fetch(`${serverIP}/events/add_event`, {
@@ -398,7 +474,16 @@ export const createEvent = async (serverIP, eventDetails) => {
   }
 };
 
-// Function to join an event
+/**
+ * Allows a user to join an event by sending a request to the server.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} userId - The ID of the user who wants to join the event.
+ * @param {string} communityName - The name of the community where the event is held.
+ * @param {string} eventID - The ID of the event to join.
+ * @param {string} eventName - The name of the event to join.
+ * @returns {Promise<Object>} - A promise that resolves with the server's response to the join request.
+ */
 export const joinEvent = async (
   serverIP,
   userId,
@@ -450,7 +535,13 @@ export const joinEvent = async (
   }
 };
 
-// Function to delete an event by its ID
+/**
+ * Deletes an event based on its ID.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} eventId - The unique identifier of the event to be deleted.
+ * @returns {Promise<string>} - A promise that resolves with a success message confirming the deletion.
+ */
 export const deleteEvent = async (serverIP, eventId) => {
   try {
     const response = await fetch(`${serverIP}/events/delete_event`, {
@@ -475,7 +566,16 @@ export const deleteEvent = async (serverIP, eventId) => {
   }
 };
 
-// Function to publish a post
+/**
+ * Publishes a post to a community, including headers and body content.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} userId - The ID of the user posting the content.
+ * @param {string} communityName - The name of the community where the post is made.
+ * @param {string} header - The title or header of the post.
+ * @param {string} body - The main content of the post.
+ * @returns {Promise<Object>} - A promise that resolves with the response data from the server, including any server-side messages or errors.
+ */
 export const publishPost = async (
   serverIP,
   userId,
@@ -541,7 +641,13 @@ export const publishPost = async (
   }
 };
 
-// Function to fetch community details
+/**
+ * Fetches detailed information about a specific community based on its name.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} communityName - The name of the community for which details are required.
+ * @returns {Promise<Object>} - A promise that resolves with detailed community data or an error message.
+ */
 export const fetchCommunityDetails = async (serverIP, communityName) => {
   const area = encodeURIComponent(communityName);
   try {
@@ -579,7 +685,13 @@ export const fetchCommunityDetails = async (serverIP, communityName) => {
   }
 };
 
-// Function to post a comment
+/**
+ * Posts a comment to a specific post within a community.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {Object} commentData - The data for the comment including the post identifier and the comment text.
+ * @returns {Promise<Object>} - A promise that resolves with the response from the server, including the status of the comment addition.
+ */
 export const postComment = async (serverIP, commentData) => {
   try {
     const response = await fetch(`${serverIP}/posting/add_comment_to_post`, {
@@ -628,7 +740,13 @@ export const postComment = async (serverIP, commentData) => {
   }
 };
 
-// Function to delete a post
+/**
+ * Deletes a post by its unique identifier.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} postId - The unique identifier of the post to be deleted.
+ * @returns {Promise<string>} - A promise that resolves with a success message if the deletion is successful.
+ */
 export const deletePost = async (serverIP, postId) => {
   try {
     const response = await fetch(`${serverIP}/posting/delete_post`, {
@@ -667,7 +785,13 @@ export const deletePost = async (serverIP, postId) => {
   }
 };
 
-// Function to delete a comment
+/**
+ * Deletes a comment from a post by its unique identifier.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {Object} deleteData - The necessary data to identify the comment to be deleted.
+ * @returns {Promise<string>} - A promise that resolves with a success message if the deletion is successful.
+ */
 export const deleteComment = async (serverIP, deleteData) => {
   try {
     const response = await fetch(
@@ -814,6 +938,13 @@ export const respondToJoinCommunityRequest = async (
   }
 };
 
+/**
+ * Fetches information about night watches scheduled in a specific community.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} communityName - The name of the community for which night watches are sought.
+ * @returns {Promise<Object>} - A promise that resolves with details of night watches or an error message.
+ */
 export const fetchNightWatchesByCommunity = async (serverIP, communityName) => {
   try {
     const response = await fetch(`${serverIP}/night_watch/by_community`, {
@@ -868,6 +999,14 @@ export const fetchNightWatchesByCommunity = async (serverIP, communityName) => {
   }
 };
 
+/**
+ * Registers a user as a participant in a specified night watch.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} candidateId - The user ID of the participant.
+ * @param {string} nightWatchId - The ID of the night watch to join.
+ * @returns {Promise<Object>} - A promise that resolves with the participation status or an error message.
+ */
 export const joinNightWatch = async (serverIP, candidateId, nightWatchId) => {
   try {
     const response = await fetch(`${serverIP}/night_watch/join_watch`, {
@@ -898,6 +1037,13 @@ export const joinNightWatch = async (serverIP, candidateId, nightWatchId) => {
   }
 };
 
+/**
+ * Creates a new night watch within a community based on provided details.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {Object} nightWatchData - Details of the night watch including date, location, and community information.
+ * @returns {Promise<string>} - A promise that resolves with a success message or an error message.
+ */
 export const createNewNightWatch = async (serverIP, nightWatchData) => {
   const url = `${serverIP}/night_watch/add_night_watch`;
   try {
@@ -941,6 +1087,13 @@ export const createNewNightWatch = async (serverIP, nightWatchData) => {
   }
 };
 
+/**
+ * Closes an active night watch by marking it as completed based on its ID.
+ *
+ * @param {string} serverIP - The server IP address.
+ * @param {string} watchId - The unique identifier of the night watch to close.
+ * @returns {Promise<string>} - A promise that resolves with a success message confirming the closure of the night watch.
+ */
 export const closeNightWatch = async (serverIP, watchId) => {
   const url = `${serverIP}/night_watch/close_night_watch`;
   try {

@@ -13,16 +13,32 @@ import { useServerIP } from "../contexts/ServerIPContext";
 import { useUser } from "../contexts/UserContext";
 import { respondToFriendRequest } from "../utils/apiUtils";
 
+/**
+ * Screen component to handle incoming friend requests.
+ * Allows the user to accept or decline friend requests.
+ *
+ * @param {{ navigation: any }} props - Component props containing navigation details.
+ */
 const MyRequestsScreen = ({ navigation }) => {
   const { user, addFriend, removeUserRequest } = useUser();
   const serverIP = useServerIP();
   const [requests, setRequests] = useState(user ? user.requests : []);
 
+  /**
+   * useEffect to synchronize the local state of requests with the user context.
+   */
   useEffect(() => {
     // Update the requests if the user context changes
     setRequests(user ? user.requests : []);
   }, [user]);
 
+  /**
+   * Handles the response to a friend request, either accepting or declining it.
+   * Updates local state and user context based on the response.
+   *
+   * @param {string} senderId - The ID of the user who sent the friend request.
+   * @param {number} userResponse - The response to the request, where 1 is accept and 0 is decline.
+   */
   const handleResponse = async (senderId, userResponse) => {
     try {
       const response = await respondToFriendRequest(
@@ -49,6 +65,10 @@ const MyRequestsScreen = ({ navigation }) => {
     }
   };
 
+  /**
+   * Render function for empty list component, displayed when there are no friend requests.
+   * @returns {JSX.Element}
+   */
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>No friend requests at the moment.</Text>
@@ -61,6 +81,11 @@ const MyRequestsScreen = ({ navigation }) => {
     </View>
   );
 
+  /**
+   * Render function for each item in the friend request list.
+   * @param {{ item: any }} - Data for the friend request item.
+   * @returns {JSX.Element}
+   */
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <Text style={styles.text}>{`Request from: ${item.name}`}</Text>
@@ -98,6 +123,7 @@ const MyRequestsScreen = ({ navigation }) => {
   );
 };
 
+// Styles for the component using StyleSheet
 const styles = StyleSheet.create({
   container: {
     flex: 1,

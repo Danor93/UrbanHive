@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.urbanhive",
@@ -30,7 +32,10 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.urbanhive",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -38,7 +43,7 @@
     "owner": "s.o.d.a",
     "extra": {
       "eas": {
-        "projectId": "9c4639f2-0032-4281-96cb-84b471fbb784"
+        "projectId": "77ffeb26-fccb-43a0-98da-92d1d6a6a11c"
       }
     }
   }
