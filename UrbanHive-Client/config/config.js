@@ -5,7 +5,7 @@
  * @returns {Promise<string>} A promise that resolves to the server IP address.
  */
 export async function fetchServerIP() {
-  const response = await fetch("http://192.168.1.235:5000/get_server_ip"); // Make an HTTP GET request to the server
+  const response = await fetch("http://localhost:5000/get_server_ip"); // Make an HTTP GET request to the server
   const data = await response.json(); // Parse the JSON response body
   return data.server_ip; // Return the server IP address from the response
 }
